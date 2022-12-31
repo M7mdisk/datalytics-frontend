@@ -10,10 +10,22 @@ const lastname = ref('');
 const email = ref('');
 const password = ref('');
 const router = useRouter();
-const invalidmsg = ref('');
-const invalidClass = ref('');
-const emptyField = ref('');
-const emptyFieldMsg = ref('');
+
+const isEmpty = ref({
+    firstname: {
+        class: 'w-full md:w-30rem ',
+        msg: false
+    },
+
+    lastname: {
+        class: 'w-full md:w-30rem ',
+        msg: false
+    },
+    email: {
+        class: 'w-full md:w-30rem ',
+        msg: false
+    },
+});
 
 const logoUrl = computed(() => {
     return `${contextPath}layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
@@ -30,14 +42,21 @@ async function signup() {
         last_name: lastname.value,
 
     }
-    if (firstname.value == '' || lastname.value == '') {
-        emptyField.value = 'p-invalid';
-        emptyFieldMsg.value = 'This field is requierd';
+    if (firstname.value == '') {
+        
+        isEmpty.value.firstname.msg = true;
+        isEmpty.value.firstname.class = 'w-full md:w-30rem p-invalid'
+
+    }
+    if (lastname.value == '') {
+        
+        isEmpty.value.lastname.msg = true;
+        isEmpty.value.lastname.class = 'w-full md:w-30rem p-invalid'
+
     }
     else {
         const res = axios.post('http://127.0.0.1:8000/api/register/', data).catch(() => {
-            invalidmsg.value = 'Wrong email format'
-            invalidClass.value = 'p-invalid'
+            isEmpty.value.email.msg=true;
         });
         if ((await res).status == 201) {
             router.push('/')
@@ -62,23 +81,24 @@ async function signup() {
 
                     <div>
                         <label for="firstname1" class="block text-900 text-xl font-medium mb-2">First Name</label>
-                        <InputText id="firstname1" type="text" placeholder="First Name" :class="'w-full md:w-30rem '+emptyField"
+                        <InputText id="firstname1" type="text" placeholder="First Name" :class="isEmpty.firstname.class"
                             style="padding: 1rem" v-model="firstname" />
                         <div class="fieldBox mb-5">
-                            <small id="username2-help" class="p-error">{{ emptyFieldMsg }}</small>
+                            <InlineMessage v-if="isEmpty.firstname.msg">This field is required</InlineMessage>
+
                         </div>
                         <label for="lastname1" class="block text-900 text-xl font-medium mb-2">Last Name</label>
-                        <InputText id="lastname1" type="text" placeholder="Last Name" :class="'w-full md:w-30rem '+emptyField"
+                        <InputText id="lastname1" type="text" placeholder="Last Name" :class="isEmpty.lastname.class"
                             style="padding: 1rem" v-model="lastname" />
                         <div class="fieldBox mb-5">
-                            <small id="username2-help" class="p-error">{{ emptyFieldMsg }}</small>
+                            <InlineMessage v-if="isEmpty.firstname.msg">This field is required</InlineMessage>
                         </div>
                         <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
 
                         <InputText id="email1" type="text" placeholder="Email address"
-                            :class="'w-full md:w-30rem ' + invalidClass" style="padding: 1rem" v-model="email" />
+                            :class="isEmpty.email.class" style="padding: 1rem" v-model="email" />
                         <div class="fieldBox mb-5">
-                            <small id="username2-help" class="p-error">{{ invalidmsg }}</small>
+                            <InlineMessage v-if="isEmpty.email.msg">Wrong Email Fromat</InlineMessage>
                         </div>
                         <label for="password1" class="block text-900 font-medium text-xl mb-2">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true"

@@ -12,6 +12,13 @@ const router = useRouter();
 const invalidmsg = ref('');
 const invalidClass = ref('')
 
+const isWrong = ref({
+
+    email: {
+        class: 'w-full mb-3 ',
+        msg: false
+    },
+});
 const logoUrl = computed(() => {
     return `${contextPath}layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
 });
@@ -27,6 +34,8 @@ async function login() {
     const res = axios.post('http://127.0.0.1:8000/api/login/', data).catch(() => {
         invalidmsg.value = 'Wrong email or password'
         invalidClass.value = 'p-invalid'
+        isWrong.value.email.class = 'w-full md: w-30rem mb-5 p-invalid'
+        isWrong.value.email.msg = true;
     });
 
     if ((await res).status == 200) {
@@ -58,11 +67,13 @@ async function login() {
 
                         <label for="password1" class="block text-900 font-medium text-xl mb-2 pb">Password</label>
                         <Password id="password1" :feedback="false" v-model="password" placeholder="Password"
-                            :class="'w-full mb-3 pb-3 ' + invalidClass" inputClass="w-full" inputStyle="padding:1rem"
+                            :class="isWrong.email.class" inputClass="w-full" inputStyle="padding:1rem"
                             :toggleMask="true">
                         </Password>
-                        <div class="text-600 text-center text-red-600 text-l font-medium mb-5">{{ invalidmsg }}</div>
-
+                        <div>
+                            <InlineMessage class="w-full md: w-30rem mb-5" v-if="isWrong.email.msg">Wrong Email Fromat
+                            </InlineMessage>
+                        </div>
 
                         <Button @click="login" label="Log In" class="w-full p-3 text-xl"></Button>
                     </div>
