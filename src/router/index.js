@@ -5,6 +5,7 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         {
+        
             path: '/',
             component: AppLayout,
             children: [
@@ -158,6 +159,10 @@ const router = createRouter({
             path: '/auth/login',
             name: 'login',
             component: () => import('@/views/pages/auth/Login.vue')
+        },   {
+            path: '/auth/signup',
+            name: 'signup',
+            component: () => import('@/views/pages/auth/signup.vue')
         },
         {
             path: '/auth/access',
@@ -171,5 +176,23 @@ const router = createRouter({
         }
     ]
 });
+function isAuth(){
+    const token =window.localStorage.getItem("Token")
+    if(token=="null"||token==""||token==null)
+        return false
+    else return true
+}
+router.beforeEach((to, from, next)=>{
+    
+    console.log("/////////////",to.name,"/////",from.name)
+    if(isAuth())
+        next();
+
+    if(to.name=="login"||to.name=="signup")
+        next()
+    else {
+        next({ name: 'login' });
+      }
+})
 
 export default router;

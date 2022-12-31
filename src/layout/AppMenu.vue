@@ -63,6 +63,11 @@ const model = ref([
                         to: '/auth/login'
                     },
                     {
+                        label: 'signup',
+                        icon: 'pi pi-fw pi-sign-in',
+                        to: '/auth/signup'
+                    },
+                    {
                         label: 'Error',
                         icon: 'pi pi-fw pi-times-circle',
                         to: '/auth/error'
