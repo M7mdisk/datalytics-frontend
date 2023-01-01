@@ -71,7 +71,8 @@ async function login() {
                             :toggleMask="true">
                         </Password>
                         <div>
-                            <InlineMessage class="w-full md: w-30rem mb-5" v-if="isWrong.email.msg">Wrong Email Fromat
+                            <InlineMessage class="w-full md: w-30rem mb-5" v-if="isWrong.email.msg">Wrong Email Or
+                                Password
                             </InlineMessage>
                         </div>
 

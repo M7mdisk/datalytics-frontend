@@ -167,7 +167,7 @@ const formatSize = (bytes) => {
             </div>
         </div>
         <div   style="margin-left: 90%; ">
-            <Button  label="Upload" class="p-button-rounded p-button-info m-5 mr-2 mb-2"  />
+            <Button  label="Upload" class="p-button-rounded m-5 mr-2 mb-2"  />
         </div>
 
 
