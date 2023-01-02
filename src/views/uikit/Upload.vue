@@ -1,18 +1,25 @@
 <script setup>
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
+import Excel from 'exceljs';
+import Papa from 'papaparse';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const toast = useToast();
 const uploadedFile = ref([]);
 const files = ref([]);
 const totalSize = ref(0);
 const totalSizePercent = ref(0);
+const Description = ref('');
+let datasetflag = ref(false);
 
 const onRemoveTemplatingFile = (file, onFileRemove, index) => {
+    files.value = [];
     onFileRemove(index);
     totalSize.value -= parseInt(this.formatSize(file.size));
     totalSizePercent.value = totalSize.value / 10;
-    
 };
 
 const onClearTemplatingUpload = (clear) => {
@@ -29,18 +36,66 @@ const onSelectedFiles = (event) => {
 };
 
 const onAdvancedUpload = () => {
-    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+    //toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
 };
+function readFile() {
+    var file1 = files.value[0];
+    var reader = new FileReader();
 
+    const content = reader.readAsText(file1);
+    reader.onload = function () {
+        var data = Papa.parse(reader.result, { header: true });
+        console.log('data', data);
+        if (data.data.length >= 100 && data.meta.field >= 4) {
+            toast.add({ severity: 'info', summary: 'success', detail: 'File Uploaded', life: 3000 });
+            datasetflag.value = true;
+            callback();
+        } else {
+            toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not Follow the Requirments Upload Another File', life: 3000 });
+        }
+    };
+}
 const uploadEvent = (callback) => {
-    totalSizePercent.value = totalSize.value / 10;
-    callback();
+    const wb = new Excel.Workbook();
+    const reader = new FileReader();
+    const file = files.value[0];
+    if (file.type == 'text/csv') {
+        // readFile()
+        const content = reader.readAsText(file);
+        reader.onload = function () {
+            var data = Papa.parse(reader.result, { header: true });
+            console.log('data', data, data.data.length, data.meta.fields.length);
+            if (data.data.length >= 10 && data.meta.fields.length >= 4) {
+                toast.add({ severity: 'success', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+                datasetflag.value = true;
+                callback();
+            } else {
+                toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not Follow the Requirments Upload Another File', life: 3000 });
+            }
+        };
+    } else {
+        reader.readAsArrayBuffer(file);
+        reader.onload = () => {
+            const buffer = reader.result;
+            wb.xlsx.load(buffer).then((workbook) => {
+                console.log(workbook, 'workbook instance');
+                console.log('WWWWWWWWWWWWWWw', workbook.worksheets[0].actualRowCount);
+                if (workbook.worksheets[0].actualRowCount >= 100 && workbook.worksheets[0].actualColumnCount >= 4) {
+                    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+                    datasetflag.value = true;
+                    callback();
+                } else {
+                    toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not Follow the Requirments Upload Another File', life: 3000 });
+                }
+            });
+        };
+    }
 };
 
 const onTemplatedUpload = () => {
     totalSize.value = 0;
     totalSizePercent.value = 0;
-    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+    // toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
 };
 
 const onUpload = () => {
@@ -59,6 +114,30 @@ const formatSize = (bytes) => {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
+async function upolad() {
+    if (datasetflag.value) {
+        var data = new FormData();
+        data.append('file', files.value[0])
+        data.append('description', Description.value)
+        var config = {
+            method: 'post',
+            url: 'http://localhost:8000/api/datasets/',
+            headers: {
+                'Authorization': 'Token '+window.localStorage.getItem('Token')
+            },
+            data: data
+        };
+        axios(config)
+            .then( (response)=> {
+                console.log(JSON.stringify(response.data));
+                router.push('/')
+            })
+            .catch( (error)=> {
+                console.log(error);
+            });
+
+    }
+}
 </script>
 
 <template>
@@ -68,29 +147,26 @@ const formatSize = (bytes) => {
             <div class="field col-12 md:col-4">
                 <div class="card h-full">
                     <h3><strong>Requirements:</strong></h3>
-                    <br>
+                    <br />
                     <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " />The file format is
-                        .xlsx or .csv</p>
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" />The file format is .xlsx or .csv</p>
 
                     <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " />100 rows at least.
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" />100 rows at least.</p>
+
+                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" /> 4 columns at least.</p>
+
+                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" />The first row must contain column names.
                     </p>
-
-                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " /> 4 columns at
-                        least.</p>
-
-                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " />The first row must
-                        contain column names.</p>
-
                 </div>
             </div>
 
-            <div class="field col-12 md:col-8 ">
-                <FileUpload name="demo[]" url="./upload.php" @upload="onTemplatedUpload($event)" :disabled="files.length>0" :multiple="false"
-                    accept=".xlsx,.csv" :maxFileSize="1000000" @select="onSelectedFiles" class="h-screen">
+            <div class="field col-12 md:col-8">
+                <FileUpload name="demo[]" url="./upload.php" @upload="onTemplatedUpload($event)" fileLimit="1"
+                    :multiple="false" accept=".xlsx,.csv" :maxFileSize="1000000" @select="onSelectedFiles"
+                    class="h-screen">
                     <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                         <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
@@ -152,14 +228,17 @@ const formatSize = (bytes) => {
                 <div class="field mt-1">
                     <div class="flex-grow-1">
                         <Fieldset legend="Description" :toggleable="true">
-                            <Textarea placeholder="Your Message" :autoResize="false" rows="8" class="w-full" />
+                            <Textarea placeholder="Your Message" :autoResize="false" rows="8" class="w-full"
+                                v-model="Description" />
                         </Fieldset>
                     </div>
                 </div>
+
+                <Toast />
             </div>
         </div>
         <div class="flex gap-2 justify-content-end">
-            <div><Button label="Upload" style="left: 0 ; bottom: 0; position: relative;"
+            <div><Button @click ="upolad" label="Upload" style="left: 0; bottom: 0; position: relative"
                     class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
         </div>
     </div>
