@@ -31,7 +31,7 @@ async function login() {
         email: email.value,
         password: password.value
     }
-    const res = axios.post('http://127.0.0.1:8000/api/login/', data).catch(() => {
+    const res = axios.post('http://127.0.0.1:8000/api/login/', data).catch((error) => {
         invalidmsg.value = 'Wrong email or password'
         invalidClass.value = 'p-invalid'
         isWrong.value.email.class = 'w-full md: w-30rem mb-5 p-invalid'

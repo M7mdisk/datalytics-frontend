@@ -12,6 +12,7 @@ const onRemoveTemplatingFile = (file, onFileRemove, index) => {
     onFileRemove(index);
     totalSize.value -= parseInt(this.formatSize(file.size));
     totalSizePercent.value = totalSize.value / 10;
+    
 };
 
 const onClearTemplatingUpload = (clear) => {
@@ -62,22 +63,44 @@ const formatSize = (bytes) => {
 
 <template>
     <div class="formgrid">
-        <div class="field col text-4xl"><strong>Upload data</strong></div>
+        <div class="field col text-4xl"><strong>Upload Data:</strong></div>
         <div class="formgrid grid">
             <div class="field col-12 md:col-4">
-                <div class="card h-full" style="height: auto">
-                    <h5>Panel</h5>
+                <div class="card h-full">
+                    <h3><strong>Requirements:</strong></h3>
+                    <br>
+                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " />The file format is
+                        .xlsx or .csv</p>
+
+                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " />100 rows at least.
+                    </p>
+
+                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " /> 4 columns at
+                        least.</p>
+
+                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
+                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem " />The first row must
+                        contain column names.</p>
+
                 </div>
             </div>
 
-            <div class="field col-12 md:col-8" style="height: max-content">
-                <FileUpload name="demo[]" url="./upload.php" @upload="onTemplatedUpload($event)" :multiple="true" accept="image/*" :maxFileSize="1000000" @select="onSelectedFiles">
+            <div class="field col-12 md:col-8 ">
+                <FileUpload name="demo[]" url="./upload.php" @upload="onTemplatedUpload($event)" :disabled="files.length>0" :multiple="false"
+                    accept=".xlsx,.csv" :maxFileSize="1000000" @select="onSelectedFiles" class="h-screen">
                     <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                         <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
                                 <Button @click="chooseCallback()" icon="pi pi-images" class="p-button-rounded"></Button>
-                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0"></Button>
-                                <Button @click="clearCallback()" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0"></Button>
+                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload"
+                                    class="p-button-rounded p-button-success"
+                                    :disabled="!files || files.length === 0"></Button>
+                                <Button @click="clearCallback()" icon="pi pi-times"
+                                    class="p-button-rounded p-button-danger"
+                                    :disabled="!files || files.length === 0"></Button>
                             </div>
                         </div>
                     </template>
@@ -85,14 +108,18 @@ const formatSize = (bytes) => {
                         <div v-if="files.length > 0">
                             <h5>Pending</h5>
                             <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-                                <div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
+                                <div v-for="(file, index) of files" :key="file.name + file.type + file.size"
+                                    class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
                                     <div>
-                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" class="shadow-2" />
+                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100"
+                                            height="50" class="shadow-2" />
                                     </div>
                                     <span class="font-semibold">{{ file.name }}</span>
                                     <div>{{ formatSize(file.size) }}</div>
                                     <Badge value="Pending" severity="warning" />
-                                    <Button icon="pi pi-times" @click="onRemoveTemplatingFile(file, fileRemoveCallback, index)" class="p-button-outlined p-button-danger p-button-rounded" />
+                                    <Button icon="pi pi-times"
+                                        @click="onRemoveTemplatingFile(file, fileRemoveCallback, index)"
+                                        class="p-button-outlined p-button-danger p-button-rounded" />
                                 </div>
                             </div>
                         </div>
@@ -100,14 +127,17 @@ const formatSize = (bytes) => {
                         <div v-if="uploadedFiles.length > 0">
                             <h5>Completed</h5>
                             <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-                                <div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
+                                <div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size"
+                                    class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
                                     <div>
-                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" class="shadow-2" />
+                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100"
+                                            height="50" class="shadow-2" />
                                     </div>
                                     <span class="font-semibold">{{ file.name }}</span>
                                     <div>{{ formatSize(file.size) }}</div>
                                     <Badge value="Completed" class="mt-3" severity="success" />
-                                    <Button icon="pi pi-times" @click="removeUploadedFileCallback(index)" class="p-button-outlined p-button-danger p-button-rounded" />
+                                    <Button icon="pi pi-times" @click="removeUploadedFileCallback(index)"
+                                        class="p-button-outlined p-button-danger p-button-rounded" />
                                 </div>
                             </div>
                         </div>
@@ -128,13 +158,9 @@ const formatSize = (bytes) => {
                 </div>
             </div>
         </div>
-<<<<<<< HEAD
-        <div   style="margin-left: 90%; ">
-            <Button  label="Upload" class="p-button-rounded m-5 mr-2 mb-2"  />
-=======
-        <div style="margin-left: 90%">
-            <Button label="Upload" class="p-button-rounded p-button-info m-5 mr-2 mb-2" />
->>>>>>> 4e65c4253d101c294b681d6293c4de0abe25c42f
+        <div class="flex gap-2 justify-content-end">
+            <div><Button label="Upload" style="left: 0 ; bottom: 0; position: relative;"
+                    class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
         </div>
     </div>
 </template>

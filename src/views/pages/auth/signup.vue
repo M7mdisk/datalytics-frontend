@@ -23,8 +23,13 @@ const isEmpty = ref({
     },
     email: {
         class: 'w-full md:w-30rem ',
-        msg: false
+        msg: false,
+        MSG: ''
     },
+    password: {
+        class: 'w-full md:w-30rem ',
+        msg: false
+    }
 });
 
 const logoUrl = computed(() => {
@@ -34,6 +39,48 @@ function setUser(data) {
     window.localStorage.setItem("Username", data.first_name + " " + data.last_name)
     window.localStorage.setItem("Token", data.token)
 }
+function checkData() {
+    let flag = 0;
+    if (firstname.value == '') {
+
+        isEmpty.value.firstname.msg = true;
+        isEmpty.value.firstname.class = 'w-full md:w-30rem p-invalid'
+        flag = 1
+
+    }
+    else {
+        isEmpty.value.firstname.msg = false;
+        isEmpty.value.firstname.class = 'w-full md:w-30rem '
+
+    }
+    if (lastname.value == '') {
+
+        isEmpty.value.lastname.msg = true;
+        isEmpty.value.lastname.class = 'w-full md:w-30rem p-invalid'
+        flag = 1
+
+    }
+    else {
+        isEmpty.value.lastname.msg = false;
+        isEmpty.value.lastname.class = 'w-full md:w-30rem '
+
+    }
+    if (password.value.length < 8) {
+
+        isEmpty.value.password.msg = true;
+        isEmpty.value.password.class = 'w-full md:w-30rem p-invalid'
+        flag = 1
+
+    }
+    if (password.value.length >= 8) {
+        isEmpty.value.password.msg = false;
+        isEmpty.value.password.class = 'w-full md:w-30rem '
+
+    }
+    if (flag == 0)
+        return true;
+    else return false
+}
 async function signup() {
     const data = {
         email: email.value,
@@ -42,26 +89,24 @@ async function signup() {
         last_name: lastname.value,
 
     }
-    if (firstname.value == '') {
-        
-        isEmpty.value.firstname.msg = true;
-        isEmpty.value.firstname.class = 'w-full md:w-30rem p-invalid'
 
-    }
-    if (lastname.value == '') {
-        
-        isEmpty.value.lastname.msg = true;
-        isEmpty.value.lastname.class = 'w-full md:w-30rem p-invalid'
+    if (checkData()) {
+        const res = axios.post('http://127.0.0.1:8000/api/register/', data);
+        res.then(async (resa) => {
+            if (resa.status == 201) {
+                router.push('/')
+                console.log("RRRRRRRRRRRR", resa)
+                setUser(resa.data)
+            }
 
-    }
-    else {
-        const res = axios.post('http://127.0.0.1:8000/api/register/', data).catch(() => {
-            isEmpty.value.email.msg=true;
-        });
-        if ((await res).status == 201) {
-            router.push('/')
-            setUser((await res).data)
-        }
+
+        })
+        res.catch((error) => {
+            {
+                isEmpty.value.email.msg = true;
+                isEmpty.value.email.MSG = error.response.data?.email[0] ?? "";
+            }
+        })
     }
 
 }
@@ -83,26 +128,27 @@ async function signup() {
                         <label for="firstname1" class="block text-900 text-xl font-medium mb-2">First Name</label>
                         <InputText id="firstname1" type="text" placeholder="First Name" :class="isEmpty.firstname.class"
                             style="padding: 1rem" v-model="firstname" />
-                        <div class="fieldBox mb-5">
+                        <div class="fieldBox mb-5 mt-1">
                             <InlineMessage v-if="isEmpty.firstname.msg">This field is required</InlineMessage>
 
                         </div>
                         <label for="lastname1" class="block text-900 text-xl font-medium mb-2">Last Name</label>
                         <InputText id="lastname1" type="text" placeholder="Last Name" :class="isEmpty.lastname.class"
                             style="padding: 1rem" v-model="lastname" />
-                        <div class="fieldBox mb-5">
-                            <InlineMessage v-if="isEmpty.firstname.msg">This field is required</InlineMessage>
+                        <div class="fieldBox mb-5 mt-1">
+                            <InlineMessage v-if="isEmpty.lastname.msg">This field is required</InlineMessage>
                         </div>
                         <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
 
-                        <InputText id="email1" type="text" placeholder="Email address"
-                            :class="isEmpty.email.class" style="padding: 1rem" v-model="email" />
-                        <div class="fieldBox mb-5">
-                            <InlineMessage v-if="isEmpty.email.msg">Wrong Email Fromat</InlineMessage>
+                        <InputText id="email1" type="text" placeholder="Email address" :class="isEmpty.email.class"
+                            style="padding: 1rem" v-model="email" />
+                        <div class="fieldBox mb-5 mt-1">
+                            <InlineMessage v-if="isEmpty.email.msg">{{ isEmpty.email.MSG }}</InlineMessage>
                         </div>
                         <label for="password1" class="block text-900 font-medium text-xl mb-2">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true"
-                            class="w-full mb-3" inputClass="w-full" inputStyle="padding:1rem"><template #header>
+                            :class="isEmpty.password.class" inputClass="w-full" inputStyle="padding:1rem"><template
+                                #header>
                                 <h6>Pick a password</h6>
                             </template>
                             <template #footer="sp">
@@ -117,11 +163,13 @@ async function signup() {
                                 </ul>
                             </template>
                         </Password>
-
-                        <div class="flex align-items-center justify-content-between mb-5 gap-5">
+                        <div class="fieldBox mb-5 mt-1">
+                            <InlineMessage v-if="isEmpty.password.msg">Weak Password</InlineMessage>
+                        </div>
+                        <div class="flex align-items-center justify-content-between  mb-5 gap-5">
 
                         </div>
-                        <Button @click="signup" label="Sign Up" class="w-full p-3 text-xl"></Button>
+                        <Button @click="signup" type="submit" label="Sign Up" class="w-full p-3 text-xl"></Button>
                     </div>
                 </div>
             </div>

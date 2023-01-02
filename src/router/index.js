@@ -45,6 +45,11 @@ const router = createRouter({
                     component: () => import('@/views/uikit/Table.vue')
                 },
                 {
+                    path: '/uikit/datasets',
+                    name: 'datasets',
+                    component: () => import('@/views/uikit/Datasets.vue')
+                },
+                {
                     path: '/uikit/list',
                     name: 'list',
                     component: () => import('@/views/uikit/List.vue')
@@ -183,14 +188,14 @@ const router = createRouter({
 });
 function isAuth() {
     const token = window.localStorage.getItem("Token")
-    if (token == "null" || token == "" || token == null)
+    if (token == "null" || token == "" || token == null || token == undefined)
         return false
     else return true
 }
 function isInRoutes(to) {
     const routes = router.getRoutes();
-    console.log(routes, routes.find(({ name }) => name === 'to'))
-    if (routes.find(({ name }) => name === to) === 'undefined')
+    console.log("MMMMMMMMMMMMMMMMM", routes, routes.find(({ name }) => name === 'to'))
+    if (routes.find(({ name }) => name === to) == undefined)
         return false;
     else return true;
 }
@@ -206,7 +211,9 @@ router.beforeEach((to, from, next) => {
             next({ name: 'login' });
         }
     }
-    else next({ name: 'notfound' })
+    else {
+        next({ name: 'notfound' })
+    }
 })
 
 export default router;

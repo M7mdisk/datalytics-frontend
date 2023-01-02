@@ -26,6 +26,7 @@ const model = ref([
             { label: 'Message', icon: 'pi pi-fw pi-comment', to: '/uikit/message' },
             { label: 'File', icon: 'pi pi-fw pi-file', to: '/uikit/file' },
             { label: 'Upload', icon: 'pi pi-fw pi-file', to: '/uikit/upload' },
+            { label: 'Datasets', icon: 'pi pi-fw pi-table', to: '/uikit/Datasets' },
             { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/uikit/charts' },
             { label: 'Misc', icon: 'pi pi-fw pi-circle', to: '/uikit/misc' }
         ]
