@@ -133,7 +133,7 @@ async function upload() {
         };
         axios(config)
             .then((response) => {
-                router.push(`/uikit/datasets/${response.data.id}`);
+                router.push({ name: 'datasetdetails', params: { id: response.data.id } });
             })
             .catch((error) => {
                 console.log(error);

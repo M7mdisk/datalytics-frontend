@@ -14,6 +14,21 @@ const router = createRouter({
                     component: () => import('@/views/Dashboard.vue')
                 },
                 {
+                    path: '/datasets',
+                    name: 'datasets',
+                    component: () => import('@/views/Datasets.vue')
+                },
+                {
+                    path: '/datasets/:id',
+                    name: 'datasetdetails',
+                    component: () => import('@/views/DatasetDetails.vue')
+                },
+                {
+                    path: '/datasets/upload',
+                    name: 'uploaddataset',
+                    component: () => import('@/views/Upload.vue')
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/views/uikit/FormLayout.vue')
@@ -42,11 +57,6 @@ const router = createRouter({
                     path: '/uikit/table',
                     name: 'table',
                     component: () => import('@/views/uikit/Table.vue')
-                },
-                {
-                    path: '/uikit/datasets',
-                    name: 'datasets',
-                    component: () => import('@/views/uikit/Datasets.vue')
                 },
                 {
                     path: '/uikit/list',
@@ -105,11 +115,6 @@ const router = createRouter({
                     path: '/uikit/file',
                     name: 'file',
                     component: () => import('@/views/uikit/File.vue')
-                },
-                {
-                    path: '/uikit/upload',
-                    name: 'upload',
-                    component: () => import('@/views/uikit/Upload.vue')
                 },
                 {
                     path: '/uikit/charts',
@@ -183,6 +188,10 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            component: () => import('@/views/pages/NotFound.vue')
         }
     ]
 });
@@ -191,21 +200,15 @@ function isAuth() {
     if (token == 'null' || token == '' || token == null || token == undefined) return false;
     else return true;
 }
-function isInRoutes(to) {
-    const routes = router.getRoutes();
-    if (routes.find(({ name }) => name === to) == undefined) return false;
-    else return true;
-}
 router.beforeEach((to, from, next) => {
-    if (isInRoutes(to.name)) {
-        if (isAuth()) next();
+    if (isAuth()) {
+        next();
+        return;
+    }
 
-        if (to.name == 'login' || to.name == 'signup') next();
-        else {
-            next({ name: 'login' });
-        }
-    } else {
-        next({ name: 'notfound' });
+    if (to.name == 'login' || to.name == 'signup') next();
+    else {
+        next({ name: 'login' });
     }
 });
 
