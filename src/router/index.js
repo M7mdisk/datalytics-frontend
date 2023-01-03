@@ -193,17 +193,11 @@ function isAuth() {
 }
 function isInRoutes(to) {
     const routes = router.getRoutes();
-    console.log(
-        'MMMMMMMMMMMMMMMMM',
-        routes,
-        routes.find(({ name }) => name === 'to')
-    );
     if (routes.find(({ name }) => name === to) == undefined) return false;
     else return true;
 }
 router.beforeEach((to, from, next) => {
     if (isInRoutes(to.name)) {
-        console.log('/////////////', to.name, '/////', from.name);
         if (isAuth()) next();
 
         if (to.name == 'login' || to.name == 'signup') next();
