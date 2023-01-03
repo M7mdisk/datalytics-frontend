@@ -67,12 +67,12 @@ const model = ref([
                     {
                         label: 'Login',
                         icon: 'pi pi-fw pi-sign-in',
-                        to: '/auth/login'
+                        to: '/login'
                     },
                     {
                         label: 'signup',
                         icon: 'pi pi-fw pi-sign-in',
-                        to: '/auth/signup'
+                        to: '/signup'
                     },
                     {
                         label: 'Error',
