@@ -5,88 +5,65 @@ import Excel from 'exceljs';
 import Papa from 'papaparse';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import 'primeicons/primeicons.css';
-
 
 const router = useRouter();
 const toast = useToast();
-const uploadedFile = ref([]);
 const files = ref([]);
-const totalSize = ref(0);
-const totalSizePercent = ref(0);
 const Description = ref('');
 let datasetflag = ref(false);
 
+const onClear = (clear) => {
+    clear();
+    datasetflag.value = false;
+};
 const onRemoveTemplatingFile = (file, onFileRemove, index) => {
     files.value = [];
     onFileRemove(index);
-    totalSize.value -= parseInt(this.formatSize(file.size));
-    totalSizePercent.value = totalSize.value / 10;
-};
-
-const onClearTemplatingUpload = (clear) => {
-    clear();
-    totalSize.value = 0;
-    totalSizePercent.value = 0;
+    datasetflag.value = false;
 };
 
 const onSelectedFiles = (event) => {
     files.value = event.files;
-    files.value.forEach((file) => {
-        totalSize.value += parseInt(this.formatSize(file.size));
-    });
+};
+const onRemoveUploadedFile = (removeUploadedFile, index) => {
+    removeUploadedFile(index);
+    files.value = [];
+    datasetflag.value = false;
 };
 
-const onAdvancedUpload = () => {
-    //toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
-};
-function readFile() {
-    var file1 = files.value[0];
-    var reader = new FileReader();
-
-    const content = reader.readAsText(file1);
-    reader.onload = function () {
-        var data = Papa.parse(reader.result, { header: true });
-        console.log('data', data);
-        if (data.data.length >= 100 && data.meta.field >= 4) {
-            toast.add({ severity: 'info', summary: 'success', detail: 'File Uploaded', life: 3000 });
-            datasetflag.value = true;
-            callback();
-        } else {
-            toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not Follow the Requirments Upload Another File', life: 3000 });
-        }
-    };
-}
 const uploadEvent = (callback) => {
     const wb = new Excel.Workbook();
     const reader = new FileReader();
     const file = files.value[0];
     let isString = true;
     if (file.type == 'text/csv') {
-        // readFile()
-        const content = reader.readAsText(file);
+        reader.readAsText(file);
         reader.onload = function () {
             var data = Papa.parse(reader.result, { header: true });
-            console.log('data', data, data.data.length, data.meta.fields.length);
 
-            if (data.data.length >= 10 && data.meta.fields.length >= 4) {
+            if (data.data.length >= 100 && data.meta.fields.length >= 4) {
                 for (let d of data.meta.fields) {
                     if (!isNaN(d)) {
                         isString = false;
-                        break
+                        break;
                     }
                 }
                 if (isString) {
-                    toast.add({ severity: 'success', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+                    toast.add({ severity: 'success', summary: 'Success', detail: 'File satisfies requirements.', life: 3000 });
                     datasetflag.value = true;
                     callback();
+                } else {
+                    toast.add({ severity: 'error', summary: 'Denied', detail: 'First row must only contain column names.', life: 3000 });
                 }
-                else {
-                    toast.add({ severity: 'error', summary: 'Denied', detail: 'Column name should not be numbers', life: 3000 });
+            } else {
+                const msgs = [];
+                if (data.data.length < 100) {
+                    msgs.push('Not have enough rows');
                 }
-            }
-            else {
-                toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not have enough rows or coulmns', life: 3000 });
+                if (data.meta.fields.length >= 4) {
+                    msgs.push(', not have enough columns');
+                }
+                toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
             }
         };
     } else {
@@ -94,26 +71,31 @@ const uploadEvent = (callback) => {
         reader.onload = () => {
             const buffer = reader.result;
             wb.xlsx.load(buffer).then((workbook) => {
-                console.log(workbook, 'workbook instance');
-                console.log('WWWWWWWWWWWWWWw', workbook.worksheets[0].actualRowCount);
                 if (workbook.worksheets[0].actualRowCount >= 100 && workbook.worksheets[0].actualColumnCount >= 4) {
-                    for (let d of data.meta.fields) {
+                    const row = workbook.worksheets[0].getRow(0);
+                    row.eachCell((cell) => {
+                        const d = cell.value;
                         if (!isNaN(d)) {
                             isString = false;
-                            break
+                            return;
                         }
-                    }
+                    });
                     if (isString) {
-                        toast.add({ severity: 'success', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+                        toast.add({ severity: 'success', summary: 'Success', detail: 'File satisfies requirements.', life: 3000 });
                         datasetflag.value = true;
                         callback();
+                    } else {
+                        toast.add({ severity: 'error', summary: 'Denied', detail: 'First row must only contain column names.', life: 3000 });
                     }
-                    else {
-                        toast.add({ severity: 'error', summary: 'Denied', detail: 'Column name should not be numbers', life: 3000 });
+                } else {
+                    const msgs = [];
+                    if (workbook.worksheets[0].actualRowCount < 100) {
+                        msgs.push('Not have enough rows');
                     }
-                }
-                else {
-                    toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not have enough rows or coulmns', life: 3000 });
+                    if (workbook.worksheets[0].actualColumnCount >= 4) {
+                        msgs.push(', not have enough columns');
+                    }
+                    toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
                 }
             });
         };
@@ -121,13 +103,7 @@ const uploadEvent = (callback) => {
 };
 
 const onTemplatedUpload = () => {
-    totalSize.value = 0;
-    totalSizePercent.value = 0;
     // toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
-};
-
-const onUpload = () => {
-    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
 };
 
 const formatSize = (bytes) => {
@@ -142,105 +118,83 @@ const formatSize = (bytes) => {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
-async function upolad() {
+async function upload() {
     if (datasetflag.value) {
         var data = new FormData();
-        data.append('file', files.value[0])
-        data.append('description', Description.value)
+        data.append('file', files.value[0]);
+        data.append('description', Description.value);
         var config = {
             method: 'post',
             url: 'http://localhost:8000/api/datasets/',
             headers: {
-                'Authorization': 'Token ' + window.localStorage.getItem('Token')
+                Authorization: 'Token ' + window.localStorage.getItem('Token')
             },
             data: data
         };
         axios(config)
             .then((response) => {
-                console.log(JSON.stringify(response.data));
-                router.push(`/uikit/datasets/${response.data.id}`)
+                router.push(`/uikit/datasets/${response.data.id}`);
             })
             .catch((error) => {
                 console.log(error);
             });
-
     }
 }
 </script>
 
 <template>
-    <div class="formgrid">
-        <div class="field col text-4xl"><strong>Upload Data:</strong></div>
-        <div class="formgrid grid">
-            <div class="field col-12 md:col-4">
-                <div class="card h-full">
-                    <h3><strong>Requirements:</strong></h3>
-                    <br />
-                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i>The file
-                        format is .xlsx or .csv</p>
-
-                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i>100 rows at
-                        least.</p>
-                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i> 4 columns
-                        at least.</p>
-
-                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i>The first
-                        row must contain column names.
-                    </p>
-                </div>
+    <Toast />
+    <h3>Upload data:</h3>
+    <div class="grid">
+        <div class="col-3 px-0">
+            <div class="card mb-0 h-full">
+                <h5>Minimum Requirements:</h5>
+                <ul>
+                    <li>The file format must be '.xlsx' or '.csv'.</li>
+                    <li>The first row must contain column names.</li>
+                    <li>The dataset must have 100 rows.</li>
+                    <li>The dataset must have at least 4 columns.</li>
+                </ul>
             </div>
+        </div>
 
-            <div class="field col-12 md:col-8 ">
-                <FileUpload name="demo[]" url="./upload.php" @upload="onTemplatedUpload($event)" fileLimit="1"
-                    :multiple="false" accept=".xlsx,.csv" :maxFileSize="1000000" @select="onSelectedFiles"
-                    class="h-screen">
+        <div class="col-9">
+            <div class="card flex flex-column gap-2">
+                <FileUpload name="demo[]" @upload="onTemplatedUpload($event)" :fileLimit="1" :multiple="false" accept=".xlsx,.csv" :maxFileSize="100000000" @select="onSelectedFiles" class="h-screen">
                     <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-                        <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2 ">
+                        <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
-                                <Button @click="chooseCallback()" icon="pi pi-images" class="p-button-rounded"></Button>
-                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload"
-                                    class="p-button-rounded p-button-success"
-                                    :disabled="!files || files.length === 0"></Button>
-                                <Button @click="clearCallback()" icon="pi pi-times"
-                                    class="p-button-rounded p-button-danger"
-                                    :disabled="!files || files.length === 0"></Button>
+                                <Button @click="chooseCallback()" icon="pi pi-file" class="p-button-rounded" :disabled="datasetflag"></Button>
+                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0"></Button>
+                                <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0"></Button>
                             </div>
                         </div>
                     </template>
-                    <template #content="{ files, uploadedFiles, removeUploadedFileCallback, fileRemoveCallback }">
+                    <template #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }">
                         <div v-if="files.length > 0">
-                            <h5>Pending</h5>
-                            <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-                                <div v-for="(file, index) of files" :key="file.name + file.type + file.size"
-                                    class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
-                                    <div>
-                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100"
-                                            height="50" class="shadow-2" />
-                                    </div>
+                            <div class="flex flex-wrap p-0 sm:p-5 gap-1 align-items-center justify-content-center">
+                                <div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0 px-5 flex flex-column border-1 surface-border align-items-center gap-3">
+                                    <!-- <div>
+                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" class="shadow-2" />
+                                    </div> -->
                                     <span class="font-semibold">{{ file.name }}</span>
                                     <div>{{ formatSize(file.size) }}</div>
                                     <Badge value="Pending" severity="warning" />
-                                    <Button icon="pi pi-times"
-                                        @click="onRemoveTemplatingFile(file, fileRemoveCallback, index)"
-                                        class="p-button-outlined p-button-danger p-button-rounded" />
+                                    <Button icon="pi pi-times" @click="onRemoveTemplatingFile(file, removeFileCallback, index)" class="p-button-outlined p-button-danger p-button-rounded" />
                                 </div>
                             </div>
                         </div>
 
                         <div v-if="uploadedFiles.length > 0">
-                            <h5>Completed</h5>
-                            <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-                                <div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size"
-                                    class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
-                                    <div>
-                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100"
-                                            height="50" class="shadow-2" />
-                                    </div>
+                            <div class="flex flex-wrap p-0 sm:p-5 gap-1 align-items-center justify-content-center">
+                                <div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
+                                    <!-- <div>
+                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" class="shadow-2" />
+                                    </div> -->
                                     <span class="font-semibold">{{ file.name }}</span>
                                     <div>{{ formatSize(file.size) }}</div>
                                     <Badge value="Completed" class="mt-3" severity="success" />
-                                    <Button icon="pi pi-times" @click="removeUploadedFileCallback(index)"
-                                        class="p-button-outlined p-button-danger p-button-rounded" />
+                                    <Button icon="pi pi-times" @click="onRemoveUploadedFile(removeUploadedFileCallback, index)" class="p-button-outlined p-button-danger p-button-rounded" />
                                 </div>
                             </div>
                         </div>
@@ -248,26 +202,18 @@ async function upolad() {
                     <template #empty>
                         <div class="flex align-items-center justify-content-center flex-column">
                             <i class="pi pi-cloud-upload border-2 border-circle p-5 text-8xl text-400 border-400" />
-                            <p class="mt-4 mb-0">Drag and drop files to here to upload.</p>
+                            <p class="mt-4 mb-0">Drag and drop files here to upload.</p>
                         </div>
                     </template>
                 </FileUpload>
-                <div class="field mt-3 ">
-                    <div class="flex-grow-1">
-                        <Fieldset legend="Description" :toggleable="true">
-                            <Textarea placeholder="Your Message" :autoResize="false" rows="8" class="w-full"
-                                v-model="Description" />
-                        </Fieldset>
-                    </div>
+                <div class="mt-1">
+                    <Textarea placeholder="Description..." :autoResize="false" rows="8" class="w-full" v-model="Description" />
                 </div>
-
-                <Toast />
             </div>
         </div>
-        <div class="flex gap-2 justify-content-end">
-            <div><Button @click="upolad" label="Upload" style="left: 0; bottom: 0; position: relative"
-                    class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
-        </div>
+    </div>
+    <div class="flex gap-2 justify-content-end">
+        <div><Button @click="upload" label="Upload" :disabled="!datasetflag" style="left: 0; bottom: 0; position: relative" class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
     </div>
 </template>
 <style lang="scss" scoped>
@@ -275,5 +221,23 @@ async function upolad() {
     .p-progressbar-value {
         background-color: #f44336;
     }
+}
+ul {
+    list-style-type: none;
+    padding-left: 1px;
+}
+
+li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+li:before {
+    position: absolute;
+    top: 15%;
+    left: 0;
+    font-family: 'primeicons';
+    content: '\e90a';
 }
 </style>
