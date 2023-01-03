@@ -3,8 +3,8 @@ import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 import Excel from 'exceljs';
 import Papa from 'papaparse';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { axiosAPI } from '@/axiosAPI';
 
 const router = useRouter();
 const toast = useToast();
@@ -123,15 +123,8 @@ async function upload() {
         var data = new FormData();
         data.append('file', files.value[0]);
         data.append('description', Description.value);
-        var config = {
-            method: 'post',
-            url: 'http://localhost:8000/api/datasets/',
-            headers: {
-                Authorization: 'Token ' + window.localStorage.getItem('Token')
-            },
-            data: data
-        };
-        axios(config)
+        axiosAPI
+            .post('/datasets/', data)
             .then((response) => {
                 router.push({ name: 'datasetdetails', params: { id: response.data.id } });
             })

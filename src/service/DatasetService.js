@@ -1,4 +1,4 @@
-import { axiosAPI } from '../axiosAPI';
+import { axiosAPI } from '@/axiosAPI';
 
 export const CLEANED = 'C';
 export const UNCLEANED = 'U';

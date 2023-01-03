@@ -1,8 +1,8 @@
 <script setup>
+import { axiosAPI } from '@/axiosAPI';
 import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
 import AppConfig from '@/layout/AppConfig.vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
 const { layoutConfig, contextPath } = useLayout();
 const firstname = ref('');
@@ -85,7 +85,7 @@ async function signup() {
     };
 
     if (checkData()) {
-        const res = axios.post('http://127.0.0.1:8000/api/register/', data);
+        const res = axiosAPI.post('/register/', data);
         res.then(async (resa) => {
             if (resa.status == 201) {
                 router.push('/datasets');

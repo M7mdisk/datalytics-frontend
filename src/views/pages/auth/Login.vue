@@ -1,9 +1,9 @@
 <script setup>
+import { axiosAPI } from '@/axiosAPI';
 import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import AppConfig from '@/layout/AppConfig.vue';
-import axios from 'axios';
 const { layoutConfig, contextPath } = useLayout();
 let email = ref('');
 let password = ref('');
@@ -27,7 +27,7 @@ async function login() {
         email: email.value,
         password: password.value
     };
-    const res = axios.post('http://127.0.0.1:8000/api/login/', data).catch((error) => {
+    const res = axiosAPI.post('/login/', data).catch((error) => {
         invalidmsg.value = 'Wrong email or password';
         invalidClass.value = 'p-invalid';
         isWrong.value.email.class = 'w-full md: w-30rem mb-5 p-invalid';
@@ -35,7 +35,6 @@ async function login() {
     });
 
     if ((await res).status == 200) {
-        console.log('sss');
         window.localStorage.setItem('Token', (await res).data.token);
         router.push('/datasets');
     }
