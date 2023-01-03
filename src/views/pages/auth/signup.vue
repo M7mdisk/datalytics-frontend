@@ -88,8 +88,7 @@ async function signup() {
         const res = axios.post('http://127.0.0.1:8000/api/register/', data);
         res.then(async (resa) => {
             if (resa.status == 201) {
-                router.push('/');
-                console.log('RRRRRRRRRRRR', resa);
+                router.push('/datasets');
                 setUser(resa.data);
             }
         });
@@ -160,7 +159,7 @@ async function signup() {
             </div>
         </div>
     </div>
-    <AppConfig simple />
+    <!-- <AppConfig simple /> -->
 </template>
 
 <style scoped>

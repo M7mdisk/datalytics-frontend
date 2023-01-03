@@ -11,6 +11,5 @@ axiosAPI.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Token ${token}`;
     }
-    console.log({ token });
     return config;
 });

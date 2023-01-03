@@ -37,7 +37,7 @@ async function login() {
     if ((await res).status == 200) {
         console.log('sss');
         window.localStorage.setItem('Token', (await res).data.token);
-        router.push('/');
+        router.push('/datasets');
     }
 }
 </script>
@@ -72,7 +72,7 @@ async function login() {
             </div>
         </div>
     </div>
-    <AppConfig simple />
+    <!-- <AppConfig simple /> -->
 </template>
 
 <style scoped>
