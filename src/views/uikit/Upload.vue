@@ -5,6 +5,8 @@ import Excel from 'exceljs';
 import Papa from 'papaparse';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import 'primeicons/primeicons.css';
+
 
 const router = useRouter();
 const toast = useToast();
@@ -59,18 +61,32 @@ const uploadEvent = (callback) => {
     const wb = new Excel.Workbook();
     const reader = new FileReader();
     const file = files.value[0];
+    let isString = true;
     if (file.type == 'text/csv') {
         // readFile()
         const content = reader.readAsText(file);
         reader.onload = function () {
             var data = Papa.parse(reader.result, { header: true });
             console.log('data', data, data.data.length, data.meta.fields.length);
+
             if (data.data.length >= 10 && data.meta.fields.length >= 4) {
-                toast.add({ severity: 'success', summary: 'Success', detail: 'File Uploaded', life: 3000 });
-                datasetflag.value = true;
-                callback();
-            } else {
-                toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not Follow the Requirments Upload Another File', life: 3000 });
+                for (let d of data.meta.fields) {
+                    if (!isNaN(d)) {
+                        isString = false;
+                        break
+                    }
+                }
+                if (isString) {
+                    toast.add({ severity: 'success', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+                    datasetflag.value = true;
+                    callback();
+                }
+                else {
+                    toast.add({ severity: 'error', summary: 'Denied', detail: 'Column name should not be numbers', life: 3000 });
+                }
+            }
+            else {
+                toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not have enough rows or coulmns', life: 3000 });
             }
         };
     } else {
@@ -81,11 +97,23 @@ const uploadEvent = (callback) => {
                 console.log(workbook, 'workbook instance');
                 console.log('WWWWWWWWWWWWWWw', workbook.worksheets[0].actualRowCount);
                 if (workbook.worksheets[0].actualRowCount >= 100 && workbook.worksheets[0].actualColumnCount >= 4) {
-                    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
-                    datasetflag.value = true;
-                    callback();
-                } else {
-                    toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not Follow the Requirments Upload Another File', life: 3000 });
+                    for (let d of data.meta.fields) {
+                        if (!isNaN(d)) {
+                            isString = false;
+                            break
+                        }
+                    }
+                    if (isString) {
+                        toast.add({ severity: 'success', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+                        datasetflag.value = true;
+                        callback();
+                    }
+                    else {
+                        toast.add({ severity: 'error', summary: 'Denied', detail: 'Column name should not be numbers', life: 3000 });
+                    }
+                }
+                else {
+                    toast.add({ severity: 'error', summary: 'Denied', detail: 'File Do Not have enough rows or coulmns', life: 3000 });
                 }
             });
         };
@@ -123,16 +151,16 @@ async function upolad() {
             method: 'post',
             url: 'http://localhost:8000/api/datasets/',
             headers: {
-                'Authorization': 'Token '+window.localStorage.getItem('Token')
+                'Authorization': 'Token ' + window.localStorage.getItem('Token')
             },
             data: data
         };
         axios(config)
-            .then( (response)=> {
+            .then((response) => {
                 console.log(JSON.stringify(response.data));
-                router.push('/')
+                router.push(`/uikit/datasets/${response.data.id}`)
             })
-            .catch( (error)=> {
+            .catch((error) => {
                 console.log(error);
             });
 
@@ -148,27 +176,26 @@ async function upolad() {
                 <div class="card h-full">
                     <h3><strong>Requirements:</strong></h3>
                     <br />
-                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" />The file format is .xlsx or .csv</p>
+                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i>The file
+                        format is .xlsx or .csv</p>
 
-                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" />100 rows at least.</p>
+                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i>100 rows at
+                        least.</p>
+                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i> 4 columns
+                        at least.</p>
 
-                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" /> 4 columns at least.</p>
-
-                    <p class="lg:text-3xl sm:text-2xl p-3"><Button icon="pi pi-check"
-                            class="p-button-rounded mr-2 mb-2 h-2rem w-2rem" />The first row must contain column names.
+                    <p class="text-xl  p-1"><i class="pi pi-check-circle p-3" style="font-size: 1.5rem"></i>The first
+                        row must contain column names.
                     </p>
                 </div>
             </div>
 
-            <div class="field col-12 md:col-8">
+            <div class="field col-12 md:col-8 ">
                 <FileUpload name="demo[]" url="./upload.php" @upload="onTemplatedUpload($event)" fileLimit="1"
                     :multiple="false" accept=".xlsx,.csv" :maxFileSize="1000000" @select="onSelectedFiles"
                     class="h-screen">
                     <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-                        <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
+                        <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2 ">
                             <div class="flex gap-2">
                                 <Button @click="chooseCallback()" icon="pi pi-images" class="p-button-rounded"></Button>
                                 <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload"
@@ -225,7 +252,7 @@ async function upolad() {
                         </div>
                     </template>
                 </FileUpload>
-                <div class="field mt-1">
+                <div class="field mt-3 ">
                     <div class="flex-grow-1">
                         <Fieldset legend="Description" :toggleable="true">
                             <Textarea placeholder="Your Message" :autoResize="false" rows="8" class="w-full"
@@ -238,7 +265,7 @@ async function upolad() {
             </div>
         </div>
         <div class="flex gap-2 justify-content-end">
-            <div><Button @click ="upolad" label="Upload" style="left: 0; bottom: 0; position: relative"
+            <div><Button @click="upolad" label="Upload" style="left: 0; bottom: 0; position: relative"
                     class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
         </div>
     </div>

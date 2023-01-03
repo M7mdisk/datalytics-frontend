@@ -4,7 +4,7 @@ import CustomerService from '@/service/CustomerService';
 import ProductService from '@/service/ProductService';
 import { ref, onBeforeMount } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
-
+import { DatasetsService } from '@/service/DatasetsService'
 const { contextPath } = useLayout();
 
 const customer1 = ref(null);
@@ -29,7 +29,7 @@ const representatives = ref([
     { name: 'Stephen Shaw', image: 'stephenshaw.png' },
     { name: 'XuXue Feng', image: 'xuxuefeng.png' }
 ]);
-
+const datasets = new DatasetsService()
 const customerService = new CustomerService();
 const productService = new ProductService();
 
@@ -43,6 +43,8 @@ onBeforeMount(() => {
     customerService.getCustomersLarge().then((data) => (customer2.value = data));
     customerService.getCustomersMedium().then((data) => (customer3.value = data));
     loading2.value = false;
+    datasets.getDatasets().then((data) => (customer3.value = data));
+
 
     initFilters1();
 });
@@ -99,43 +101,7 @@ const calculateCustomerTotal = (name) => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>Frozen Columns</h5>
-
-                <DataTable :value="customer2" :scrollable="true" scrollHeight="400px" :loading="loading2" scrollDirection="both" class="mt-3">
-                    <Column field="name" header="Name" :style="{ width: '150px' }" frozen></Column>
-                    <Column field="id" header="Id" :style="{ width: '100px' }" :frozen="idFrozen"></Column>
-                    <Column field="country.name" header="Country" :style="{ width: '200px' }">
-                        <template #body="{ data }">
-                            <img src="/demo/images/flag/flag_placeholder.png" :class="'flag flag-' + data.country.code" width="30" />
-                            <span style="margin-left: 0.5em; vertical-align: middle" class="image-text">{{ data.country.name }}</span>
-                        </template>
-                    </Column>
-                    <Column field="date" header="Date" :style="{ width: '200px' }"></Column>
-                    <Column field="company" header="Company" :style="{ width: '200px' }"></Column>
-                    <Column field="status" header="Status" :style="{ width: '200px' }">
-                        <template #body="{ data }">
-                            <span :class="'customer-badge status-' + data.status">{{ data.status }}</span>
-                        </template>
-                    </Column>
-                    <Column field="activity" header="Activity" :style="{ width: '200px' }"></Column>
-                    <Column field="representative.name" header="Representative" :style="{ width: '200px' }">
-                        <template #body="{ data }">
-                            <img :alt="data.representative.name" :src="contextPath + 'demo/images/avatar/' + data.representative.image" width="32" style="vertical-align: middle" />
-                            <span style="margin-left: 0.5em; vertical-align: middle" class="image-text">{{ data.representative.name }}</span>
-                        </template>
-                    </Column>
-                    <Column field="balance" header="Balance" :style="{ width: '150px' }" frozen alignFrozen="right">
-                        <template #body="{ data }">
-                            <span class="text-bold">{{ formatCurrency(data.balance) }}</span>
-                        </template>
-                    </Column>
-                </DataTable>
-            </div>
-        </div>
-
-        <div class="col-12">
-            <div class="card">
-                <h5>Row Expand</h5>
+                <h5>Datasets</h5>
                 <DataTable :value="products" v-model:expandedRows="expandedRows" dataKey="id" responsiveLayout="scroll">
                     <template #header>
                         <div>
@@ -151,7 +117,8 @@ const calculateCustomerTotal = (name) => {
                     </Column>
                     <Column header="Image">
                         <template #body="slotProps">
-                            <img :src="contextPath + 'demo/images/product/' + slotProps.data.image" :alt="slotProps.data.image" class="shadow-2" width="100" />
+                            <img :src="contextPath + 'demo/images/product/' + slotProps.data.image"
+                                :alt="slotProps.data.image" class="shadow-2" width="100" />
                         </template>
                     </Column>
                     <Column field="price" header="Price" :sortable="true">
@@ -162,8 +129,8 @@ const calculateCustomerTotal = (name) => {
                     <Column field="category" header="Category" :sortable="true">
                         <template #body="slotProps">
                             {{ formatCurrency(slotProps.data.category) }}
-                        </template></Column
-                    >
+                        </template>
+                    </Column>
                     <Column field="rating" header="Reviews" :sortable="true">
                         <template #body="slotProps">
                             <Rating :modelValue="slotProps.data.rating" :readonly="true" :cancel="false" />
@@ -171,7 +138,10 @@ const calculateCustomerTotal = (name) => {
                     </Column>
                     <Column field="inventoryStatus" header="Status" :sortable="true">
                         <template #body="slotProps">
-                            <span :class="'product-badge status-' + (slotProps.data.inventoryStatus ? slotProps.data.inventoryStatus.toLowerCase() : '')">{{ slotProps.data.inventoryStatus }}</span>
+                            <span
+                                :class="'product-badge status-' + (slotProps.data.inventoryStatus ? slotProps.data.inventoryStatus.toLowerCase() : '')">{{
+        slotProps.data.inventoryStatus
+}}</span>
                         </template>
                     </Column>
                     <template #expansion="slotProps">
@@ -200,7 +170,10 @@ const calculateCustomerTotal = (name) => {
                                 </Column>
                                 <Column field="status" header="Status" :sortable="true">
                                     <template #body="slotProps">
-                                        <span :class="'order-badge order-' + (slotProps.data.status ? slotProps.data.status.toLowerCase() : '')">{{ slotProps.data.status }}</span>
+                                        <span
+                                            :class="'order-badge order-' + (slotProps.data.status ? slotProps.data.status.toLowerCase() : '')">{{
+        slotProps.data.status
+                                            }}</span>
                                     </template>
                                 </Column>
                                 <Column headerStyle="width:4rem">
@@ -215,35 +188,7 @@ const calculateCustomerTotal = (name) => {
             </div>
         </div>
 
-        <div class="col-12">
-            <div class="card">
-                <h5>Subheader Grouping</h5>
-                <DataTable :value="customer3" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1" scrollable scrollHeight="400px">
-                    <Column field="representative.name" header="Representative"></Column>
-                    <Column field="name" header="Name" style="min-width: 200px"></Column>
-                    <Column field="country" header="Country" style="min-width: 200px">
-                        <template #body="slotProps">
-                            <img src="/demo/images/flag/flag_placeholder.png" :class="'flag flag-' + slotProps.data.country.code" width="30" />
-                            <span class="image-text ml-2">{{ slotProps.data.country.name }}</span>
-                        </template>
-                    </Column>
-                    <Column field="company" header="Company" style="min-width: 200px"></Column>
-                    <Column field="status" header="Status" style="min-width: 200px">
-                        <template #body="slotProps">
-                            <span :class="'customer-badge status-' + slotProps.data.status">{{ slotProps.data.status }}</span>
-                        </template>
-                    </Column>
-                    <Column field="date" header="Date" style="min-width: 200px"></Column>
-                    <template #groupheader="slotProps">
-                        <img :alt="slotProps.data.representative.name" :src="contextPath + 'demo/images/avatar/' + slotProps.data.representative.image" width="32" style="vertical-align: middle" />
-                        <span class="image-text font-bold ml-2">{{ slotProps.data.representative.name }}</span>
-                    </template>
-                    <template #groupfooter="slotProps">
-                        <td style="text-align: right" class="text-bold pr-6">Total Customers: {{ calculateCustomerTotal(slotProps.data.representative.name) }}</td>
-                    </template>
-                </DataTable>
-            </div>
-        </div>
+
     </div>
 </template>
 
