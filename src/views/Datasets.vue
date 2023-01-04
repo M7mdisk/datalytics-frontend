@@ -22,7 +22,7 @@ const expandedRows = ref([]);
             </router-link>
         </div>
 
-        <DataTable :value="datasets" v-model:expandedRows="expandedRows" :rows="5" :paginator="true" responsiveLayout="scroll">
+        <DataTable :value="datasets" v-model:expandedRows="expandedRows" :rows="8" :paginator="true" responsiveLayout="scroll">
             <Column :expander="true" headerStyle="width: 3rem" />
             <Column field="file_name" header="File Name">
                 <template #body="slotProps">

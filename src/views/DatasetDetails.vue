@@ -52,7 +52,7 @@ export default {
                 <template #header>
                     <div class="d-flex flex-col gap-6 w-full" style="min-width: 10rem">
                         <div class="mb-1">{{ field.column_name }}</div>
-                        <ProgressBar :title="100 - field.percent_missing + '%'" :value="100 - field.percent_missing" :showValue="false" style="height: 1.5rem; width: 100%"></ProgressBar>
+                        <ProgressBar :title="100 - field.percent_missing + '%'" :value="100 - field.percent_missing" :showValue="true" style="height: 1.5rem; width: 100%"></ProgressBar>
                     </div>
                 </template>
             </Column>
