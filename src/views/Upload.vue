@@ -58,10 +58,10 @@ const uploadEvent = (callback) => {
             } else {
                 const msgs = [];
                 if (data.data.length < 100) {
-                    msgs.push('Not have enough rows');
+                    msgs.push('Not enough rows');
                 }
-                if (data.meta.fields.length >= 4) {
-                    msgs.push(', not have enough columns');
+                if (data.meta.fields.length < 4) {
+                    msgs.push('not enough columns');
                 }
                 toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
             }
@@ -90,10 +90,10 @@ const uploadEvent = (callback) => {
                 } else {
                     const msgs = [];
                     if (workbook.worksheets[0].actualRowCount < 100) {
-                        msgs.push('Not have enough rows');
+                        msgs.push('Not enough rows');
                     }
-                    if (workbook.worksheets[0].actualColumnCount >= 4) {
-                        msgs.push(', not have enough columns');
+                    if (workbook.worksheets[0].actualColumnCount < 4) {
+                        msgs.push('not enough columns');
                     }
                     toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
                 }

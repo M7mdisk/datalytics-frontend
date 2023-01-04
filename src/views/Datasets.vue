@@ -58,6 +58,9 @@ const expandedRows = ref([]);
                 </template>
             </Column>
             <template #expansion="slotProps">{{ slotProps.data.description == '' ? 'No Description.' : 'Description: ' + slotProps.data.description }}</template>
+            <template #empty>
+                <div class="flex align-items-center justify-content-center">You have not uploaded any datasets</div>
+            </template>
         </DataTable>
     </div>
 </template>

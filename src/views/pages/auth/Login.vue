@@ -22,7 +22,13 @@ const logoUrl = computed(() => {
     return `${contextPath}layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
 });
 
-async function login() {
+async function login(e) {
+    e.preventDefault();
+    if (email.value == '' || password.value == '') {
+        invalidClass.value = 'p-invalid';
+        isWrong.value.email.class = 'w-full md: w-30rem mb-5 p-invalid';
+        return;
+    }
     const data = {
         email: email.value,
         password: password.value
@@ -53,19 +59,21 @@ async function login() {
                     </div>
 
                     <div>
-                        <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email1" type="text" placeholder="Email address" :class="'w-full md: w-30rem mb-5 ' + invalidClass" style="padding: 1rem" v-model="email" />
+                        <form @submit="login">
+                            <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
+                            <InputText id="email1" type="email" placeholder="Email address" :class="'w-full md: w-30rem mb-5 ' + invalidClass" style="padding: 1rem" v-model="email" />
 
-                        <label for="password1" class="block text-900 font-medium text-xl mb-2 pb">Password</label>
-                        <Password id="password1" :feedback="false" v-model="password" placeholder="Password" :class="isWrong.email.class" inputClass="w-full" inputStyle="padding:1rem" :toggleMask="true"> </Password>
-                        <div>
-                            <InlineMessage class="w-full md: w-30rem mb-5" v-if="isWrong.email.msg">Wrong Email Or Password </InlineMessage>
-                        </div>
-                        <p>
-                            Don't have an account?
-                            <router-link class="text-primary" :to="{ name: 'signup' }"> sign up</router-link>
-                        </p>
-                        <Button @click="login" label="Log In" class="w-full p-3 text-xl"></Button>
+                            <label for="password1" class="block text-900 font-medium text-xl mb-2 pb">Password</label>
+                            <Password id="password1" :feedback="false" v-model="password" placeholder="Password" :class="isWrong.email.class" inputClass="w-full" inputStyle="padding:1rem" :toggleMask="true"> </Password>
+                            <div>
+                                <InlineMessage class="w-full md: w-30rem mb-5" v-if="isWrong.email.msg">Invalid email or password </InlineMessage>
+                            </div>
+                            <p>
+                                Don't have an account?
+                                <router-link class="text-primary" :to="{ name: 'signup' }"> sign up</router-link>
+                            </p>
+                            <Button type="submit" @click="login" label="Log In" class="w-full p-3 text-xl"></Button>
+                        </form>
                     </div>
                 </div>
             </div>
