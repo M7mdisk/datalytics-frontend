@@ -29,15 +29,22 @@ export default {
             <h3>Dataset Details:</h3>
             <div class="flex gap-2">
                 <Button v-if="dataset.status == UNCLEANED" label="Clean" icon="pi pi-wrench"></Button>
+                <div v-else>
+                    <Menu ref="menu" :model="overlayMenuItems" :popup="true" />
+                    <Button type="button" label="View Applied Techniques" class="p-button-outlined" icon="pi pi-angle-down" @click="toggleMenu" style="width: auto" />
+                </div>
                 <Button label="Export" icon="pi pi-download" @click="exportDataset"></Button>
             </div>
         </div>
         <div>
-            <h3>
+            <h3 class="mb-0">
                 {{ dataset.file_name }}
-                <Tag v-if="dataset.status == CLEANED" class="mr-2" value="Primary" severity="success" style="vertical-align: middle">Cleaned</Tag>
-                <Tag v-else-if="dataset.status == UNCLEANED" class="mr-2" value="Primary" severity="warning" style="vertical-align: middle">Uncleaned</Tag>
+                <Tag v-if="dataset.status == CLEANED" value="Primary" severity="success" style="vertical-align: middle">Cleaned</Tag>
+                <Tag v-else-if="dataset.status == UNCLEANED" value="Primary" severity="warning" style="vertical-align: middle">Uncleaned</Tag>
             </h3>
+            <p class="text-600 text-xl mt-1 mb-3">
+                {{ new Date(dataset.uploaded_at).toLocaleString('en-GB', { hour12: true, timeZone: 'Asia/Kuwait', timeStyle: 'short', dateStyle: 'medium' }) }}
+            </p>
         </div>
 
         <DataTable v-if="dataset.data" :value="dataset.data.data" :rows="8" responsiveLayout="scroll">

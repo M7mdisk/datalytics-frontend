@@ -60,7 +60,7 @@ const isOutsideClicked = (event) => {
 };
 
 const logOut = () => {
-    window.localStorage.removeItem('token');
+    window.localStorage.removeItem('Token');
     router.push('/login');
 };
 </script>
