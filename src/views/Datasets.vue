@@ -14,7 +14,7 @@ const expandedRows = ref([]);
 </script>
 
 <template>
-    <div class="card">
+    <div class="card shadow-1">
         <div class="flex mb-4 justify-content-between">
             <h3>Datasets:</h3>
             <router-link to="/datasets/upload">
