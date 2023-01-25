@@ -157,9 +157,9 @@ async function upload() {
                     <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                         <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
-                                <Button @click="chooseCallback()" icon="pi pi-file" class="p-button-rounded" :disabled="datasetflag"></Button>
-                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0"></Button>
-                                <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0"></Button>
+                                <Button @click="chooseCallback()" icon="pi pi-file" class="p-button-rounded" :disabled="datasetflag" v-tooltip="'Select File'"></Button>
+                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0" v-tooltip="'Upload File'"></Button>
+                                <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0" v-tooltip="'Delete'"></Button>
                             </div>
                         </div>
                     </template>

@@ -20,6 +20,11 @@ const router = createRouter({
                     component: () => import('@/views/MLPage.vue')
                 },
                 {
+                    path: '/new-mlmodel',
+                    name: 'New Model',
+                    component: () => import('@/views/NewMLModel.vue')
+                },
+                {
                     path: '/datasets',
                     name: 'datasets',
                     component: () => import('@/views/Datasets.vue')

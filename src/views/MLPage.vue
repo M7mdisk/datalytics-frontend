@@ -86,14 +86,14 @@ const onSortChange = (event) => {
                 </div>
 
                 <div class="flex mt-3 gap-2 justify-content-end">
-                    <div><Button @click="" label="READY" :disabled="!datasetflag"
+                    <div><Button @click="" label="READY"
                             style="left: 0; bottom: 0; position: relative"
                             class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
                 </div>
             </div>
         </div>
         <div class="col-4  ">
-            <router-link to="/">
+            <router-link to="/new-mlmodel">
             <div class=" col-12 card m-1 border-1 surface-border justify-content-center w-full h-full" >
                 <div class=" flex justify-content-center w-full h-full"
                     style="border: 2px dotted blue; border-style: dotted dotted dotted;  border-radius: 15px;">
