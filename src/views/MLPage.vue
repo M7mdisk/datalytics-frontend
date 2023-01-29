@@ -93,13 +93,13 @@ const onSortChange = (event) => {
             </div>
         </div>
         <div class="col-4  ">
-            <router-link to="/new-mlmodel">
+            <router-link to="/ml-models/new-ml-model">
             <div class=" col-12 card m-1 border-1 surface-border justify-content-center w-full h-full" >
                 <div class=" flex justify-content-center w-full h-full"
                     style="border: 2px dotted blue; border-style: dotted dotted dotted;  border-radius: 15px;">
                     
                     <div class="  m-8  justify-content-center"><div class="flex justify-content-center mt-4"><Button icon="pi pi-plus" class=" mb-3 p-button-rounded" iconPos="center" /></div>
-                    <P>Add New Model</P></div>
+                    <P class="text-primary">Add New Model</P></div>
                 </div>
 
             </div>

@@ -157,9 +157,9 @@ async function upload() {
                     <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                         <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
-                                <Button @click="chooseCallback()" icon="pi pi-file" class="p-button-rounded" :disabled="datasetflag" v-tooltip="'Select File'"></Button>
-                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0" v-tooltip="'Upload File'"></Button>
-                                <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0" v-tooltip="'Delete'"></Button>
+                                <Button @click="chooseCallback()" icon="pi pi-file" class="p-button-rounded" :disabled="datasetflag" v-tooltip.top="'Select File'"></Button>
+                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0" v-tooltip.top="'Upload File'"></Button>
+                                <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0" v-tooltip.top="'Delete'"></Button>
                             </div>
                         </div>
                     </template>
@@ -173,7 +173,7 @@ async function upload() {
                                     <span class="font-semibold">{{ file.name }}</span>
                                     <div>{{ formatSize(file.size) }}</div>
                                     <Badge value="Pending" severity="warning" />
-                                    <Button icon="pi pi-times" @click="onRemoveTemplatingFile(file, removeFileCallback, index)" class="p-button-outlined p-button-danger p-button-rounded" />
+                                    <Button icon="pi pi-times" @click="onRemoveTemplatingFile(file, removeFileCallback, index)" v-tooltip.bottom="'Delete'" class="p-button-outlined p-button-danger p-button-rounded" />
                                 </div>
                             </div>
                         </div>

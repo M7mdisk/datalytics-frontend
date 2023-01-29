@@ -85,10 +85,14 @@ const logOut = () => {
                 <i class="pi pi-calendar"></i>
                 <span>Calendar</span>
             </button> -->
-            <button @click="logOut()" class="p-link layout-topbar-button">
-                <i class="pi pi-user"></i>
-                <span>Profile</span>
-            </button>
+            <router-link to="/profile">
+                <button class="p-link layout-topbar-button " v-tooltip.bottom="'Profile'">
+                    <i class="pi pi-user"></i>
+                </button></router-link>
+            <router-link to="/login">
+                <button @click="logOut" class="p-link layout-topbar-button " v-tooltip.bottom="'Logout'">
+                    <i class="pi pi-sign-out"></i>
+                </button></router-link>
             <!-- <button @click="onSettingsClick()" class="p-link layout-topbar-button">
                 <i class="pi pi-cog"></i>
                 <span>Settings</span>
@@ -97,4 +101,6 @@ const logOut = () => {
     </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+</style>

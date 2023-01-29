@@ -76,11 +76,11 @@ const searchCountry = (event) => {
 };
 </script>
 <template>
-    <h1>Create new model: </h1>
-    <div class="grid p-fluid ">
+    <h1 >Create New Model: </h1>
+    <div class="grid p-fluid " >
 
-        <div class="col-12 ">
-            <div class="card shadow-1">
+        <div class="col-12 " >
+            <div class="card shadow-1" style="min-height: 600px;">
                 <div class="grid">
 
                     <div class="col-12 md:col-6">
@@ -128,8 +128,8 @@ const searchCountry = (event) => {
                                         </div>
                                     </template>
                                 </MultiSelect>
-                                <Listbox v-model="listboxValue" :multiple="true" :options="listboxValues"
-                                    optionLabel="name" :filter="true" />
+                                <!-- <Listbox v-model="listboxValue" :multiple="true" :options="listboxValues"
+                                    optionLabel="name" :filter="true" /> -->
 
                             </div>
                         </div>
@@ -146,7 +146,7 @@ const searchCountry = (event) => {
                                 <Dropdown v-model="dropdownValue" :options="dropdownValues" optionLabel="name"
                                     placeholder="Select" />
                                 <RouterLink to="/datasets/upload">
-                                    <p class="ml-2 text-primary">Create new dataset</p>
+                                    <p class="ml-2 text-primary">Create New Dataset</p>
                                 </RouterLink>
                             </div>
                         </div>
@@ -156,7 +156,8 @@ const searchCountry = (event) => {
 
 
                 </div>
-                <div class="flex m-3 justify-content-end">
+                <div class="col-12 h-10rem"></div>
+                <div class="flex mr-6 justify-content-end"  >
                     <div><Button @click="upload" label="Create" 
                             style="left: 0; bottom: 0; position: relative"
                             class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
@@ -169,4 +170,8 @@ const searchCountry = (event) => {
 
 
     </div>
+
+
+
+    
 </template>
