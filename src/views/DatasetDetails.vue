@@ -1,37 +1,73 @@
 <script>
 import DatasetService, { CLEANED, UNCLEANED } from '@/service/DatasetService';
+import { axiosAPI } from '@/axiosAPI';
+
 export default {
     beforeRouteEnter(to, from, next) {
         new DatasetService().getDataset(to.params.id).then((data) => {
-            next((vm) => vm.setData(data));
+            next((vm) => vm.setData(data, to.params.id));
         });
     },
     data() {
         return {
             dataset: {},
             CLEANED,
-            UNCLEANED
+            UNCLEANED,
+            id: null,
+            outliers: []
         };
     },
     methods: {
-        setData(d) {
+        setData(d, id) {
+            const outl = d.data.columns
+            let out = []
             this.dataset = d;
+            this.id = id;
+            outl.forEach(element => {
+                out.push(element['outliers'])
+            });
+            this.outliers = [].concat.apply([], out);
         },
         exportDataset() {
             console.log('x');
+        },
+        async Clean() {
+            console.log(this.dataset)
+            await axiosAPI.post(`/datasets/${this.id}/clean/`).then((data) => {
+                this.dataset.status = CLEANED
+                this.dataset = data.data
+                this.$toast.add({severity:'success', summary: 'Success Message', detail:'Data Cleaned Successfully', life: 3000});
+
+            })
+
+        },
+        checkEmpty(data) {
+            if (data == null || data == 'null' || data == '')
+                return true
+            return false
+        },
+        checkOutliers(data) {
+            if (this.outliers.indexOf(data) >= 0)
+                return true
+            return false
         }
-    }
+
+
+    },
+
 };
 </script>
 <template>
     <div class="card" v-if="dataset.data">
         <div class="flex mb-4 justify-content-between">
+            <Toast />
             <h3>Dataset Details:</h3>
             <div class="flex gap-2">
-                <Button v-if="dataset.status == UNCLEANED" label="Clean" icon="pi pi-wrench"></Button>
+                <Button v-if="dataset.status == UNCLEANED" label="Clean" @click="Clean" icon="pi pi-wrench"></Button>
                 <div v-else>
                     <Menu ref="menu" :model="overlayMenuItems" :popup="true" />
-                    <Button type="button" label="View Applied Techniques" class="p-button-outlined" icon="pi pi-angle-down" @click="toggleMenu" style="width: auto" />
+                    <Button type="button" label="View Applied Techniques" class="p-button-outlined"
+                        icon="pi pi-angle-down" @click="toggleMenu" style="width: auto" />
                 </div>
                 <Button label="Export" icon="pi pi-download" @click="exportDataset"></Button>
             </div>
@@ -39,22 +75,46 @@ export default {
         <div>
             <h3 class="mb-0">
                 {{ dataset.file_name }}
-                <Tag v-if="dataset.status == CLEANED" value="Primary" severity="success" style="vertical-align: middle">Cleaned</Tag>
-                <Tag v-else-if="dataset.status == UNCLEANED" value="Primary" severity="warning" style="vertical-align: middle">Uncleaned</Tag>
+                <Tag v-if="dataset.status == CLEANED" value="Primary" severity="success" style="vertical-align: middle">
+                    Cleaned</Tag>
+                <Tag v-else-if="dataset.status == UNCLEANED" value="Primary" severity="warning"
+                    style="vertical-align: middle">Uncleaned</Tag>
             </h3>
             <p class="text-600 text-xl mt-1 mb-3">
-                {{ new Date(dataset.uploaded_at).toLocaleString('en-GB', { hour12: true, timeZone: 'Asia/Kuwait', timeStyle: 'short', dateStyle: 'medium' }) }}
+                {{
+                    new Date(dataset.uploaded_at).toLocaleString('en-GB', {
+                        hour12: true, timeZone: 'Asia/Kuwait',
+                        timeStyle: 'short', dateStyle: 'medium'
+                    })
+                }}
             </p>
         </div>
 
-        <DataTable v-if="dataset.data" :value="dataset.data.data" :rows="8" responsiveLayout="scroll">
-            <Column :key="field.name" v-for="field in dataset.data.columns" :field="field.column_name" headerStyle="width: 3rem">
+        <DataTable v-if="dataset.data" :value="dataset.data.data" :rows="20" :paginator="true" responsiveLayout="scroll"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown">
+            <Column :key="field.name" v-for="field in dataset.data.columns" :field="field.column_name" sortable
+                headerStyle="width: 3rem">
                 <template #header>
                     <div class="d-flex flex-col gap-6 w-full" style="min-width: 10rem">
-                        <div class="mb-1">{{ field.column_name }}</div>
-                        <ProgressBar :title="100 - field.percent_missing + '%'" :value="100 - field.percent_missing" :showValue="true" style="height: 1.5rem; width: 100%"></ProgressBar>
+                        <div class="mb-1 justify-content-center text-center">{{ field.column_name }}</div>
+                        <ProgressBar :title="100 - field.percent_missing + '%'" :value="100 - field.percent_missing"
+                            :showValue="true" style="height: 1.5rem; width: 100%"></ProgressBar>
                     </div>
                 </template>
+                <template #body="{ data }">
+                    <div  v-if="checkEmpty(data[field.column_name])" class="col"
+                        style=" background-color: lightcoral; opacity: 60%;  " v-tooltip.top="'Missing Value'">
+                        <p>{{ data[field.column_name] }}</p>
+                    </div>
+                    <div class="flex justify-content-center align-self-center" v-else-if="checkOutliers(data[field.column_name])"
+                            style=" background-color:lightsalmon ; opacity: 60%;  "  v-tooltip.top="'Oulier'">
+                        <p class="text-center">{{
+                            data[field.column_name] }}</p>
+                    </div>
+                    <p v-else  class="text-center">{{ data[field.column_name] }}</p>
+
+                </template>
+
             </Column>
         </DataTable>
     </div>

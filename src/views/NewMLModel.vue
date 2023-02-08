@@ -80,7 +80,7 @@ const searchCountry = (event) => {
     <div class="grid p-fluid " >
 
         <div class="col-12 " >
-            <div class="card shadow-1" style="min-height: 600px;">
+            <div class="card shadow-1" style="min-height: 800px;">
                 <div class="grid">
 
                     <div class="col-12 md:col-6">
@@ -156,7 +156,8 @@ const searchCountry = (event) => {
 
 
                 </div>
-                <div class="col-12 h-10rem"></div>
+                <div class="col-12 h-22rem xs:h-3rem
+                "></div>
                 <div class="flex mr-6 justify-content-end"  >
                     <div><Button @click="upload" label="Create" 
                             style="left: 0; bottom: 0; position: relative"

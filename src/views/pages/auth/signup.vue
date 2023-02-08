@@ -85,7 +85,7 @@ async function signup() {
     };
 
     if (checkData()) {
-        const res = axiosAPI.post('/register/', data);
+        const res = axiosAPI.post('/user/', data);
         res.then(async (resa) => {
             if (resa.status == 201) {
                 router.push('/datasets');
