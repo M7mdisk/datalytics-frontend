@@ -11,7 +11,7 @@ const toast = useToast();
 const files = ref([]);
 const Description = ref('');
 let datasetflag = ref(false);
-
+const uploading = ref(false);
 const onClear = (clear) => {
     clear();
     datasetflag.value = false;
@@ -119,6 +119,7 @@ const formatSize = (bytes) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 async function upload() {
+    uploading.value = true;
     if (datasetflag.value) {
         var data = new FormData();
         data.append('file', files.value[0]);
@@ -158,7 +159,7 @@ async function upload() {
                         <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
                                 <Button @click="chooseCallback()" icon="pi pi-file" class="p-button-rounded" :disabled="datasetflag" v-tooltip.top="'Select File'"></Button>
-                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0" v-tooltip.top="'Upload File'"></Button>
+                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0" v-tooltip.top="'Validate file'"></Button>
                                 <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0" v-tooltip.top="'Delete'"></Button>
                             </div>
                         </div>
@@ -206,7 +207,7 @@ async function upload() {
         </div>
     </div>
     <div class="flex gap-2 justify-content-end">
-        <div><Button @click="upload" label="Upload" :disabled="!datasetflag" style="left: 0; bottom: 0; position: relative" class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
+        <div><Button @click="upload" label="Upload" :disabled="!datasetflag" :loading="uploading" style="left: 0; bottom: 0; position: relative" class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
     </div>
 </template>
 <style lang="scss" scoped>

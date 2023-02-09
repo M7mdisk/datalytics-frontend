@@ -38,7 +38,7 @@ export default {
             });
         },
         checkEmpty(data) {
-            if (data === null || data === 'null' || data === '') return true;
+            if (data == null || data === 'null' || data === '') return true;
             return false;
         },
         checkOutliers(data, columnName) {
@@ -56,7 +56,7 @@ export default {
             <Toast />
             <h3>Dataset Details:</h3>
             <div class="flex gap-2">
-                <Button v-if="dataset.status == UNCLEANED" label="Clean" @click="Clean" icon="pi pi-wrench" :disabled="isCleaning"></Button>
+                <Button v-if="dataset.status == UNCLEANED" label="Clean" @click="Clean" icon="pi pi-wrench" :loading="isCleaning"></Button>
                 <div v-else>
                     <Menu ref="menu" :model="overlayMenuItems" :popup="true" />
                     <Button type="button" label="View Applied Techniques" class="p-button-outlined" icon="pi pi-angle-down" @click="toggleMenu" style="width: auto" />
@@ -84,28 +84,38 @@ export default {
             </p>
         </div>
 
-        <DataTable v-if="dataset.data" :value="dataset.data.data" :rows="20" :paginator="true" responsiveLayout="scroll" paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown">
-            <Column :key="field.name" v-for="field in dataset.data.columns" :field="field.column_name" sortable headerStyle="width: 3rem">
+        <DataTable class v-if="dataset.data" :value="dataset.data.data" :rows="20" :paginator="true" responsiveLayout="scroll" paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown">
+            <Column bodyStyle="padding:0; " :key="field.name" v-for="field in dataset.data.columns" :field="field.column_name" sortable headerStyle="width: 3rem">
                 <template #header>
                     <div class="d-flex flex-col gap-6 w-full" style="min-width: 10rem">
                         <div class="mb-1 justify-content-center text-center">{{ field.column_name }}</div>
-                        <ProgressBar :title="100 - field.percent_missing + '%'" :value="100 - field.percent_missing" :showValue="true" style="height: 1.5rem; width: 100%"></ProgressBar>
+                        <ProgressBar :title="(100 - field.percent_missing).toFixed(2) + '%'" :value="(100 - field.percent_missing).toFixed(2)" :showValue="true" style="height: 1.5rem; width: 100%"></ProgressBar>
                     </div>
                 </template>
                 <template #body="{ data }">
-                    <div v-if="checkEmpty(data[field.column_name])" class="col" style="background-color: lightcoral; opacity: 60%" v-tooltip.top="'Missing Value'">
-                        <p>{{ data[field.column_name] }}</p>
+                    <div v-if="checkEmpty(data[field.column_name])" class="cell empty" style="background-color: lightcoral; opacity: 60%" v-tooltip.top="'Missing Value'">
+                        <p>{{ ' ' }}</p>
                     </div>
-                    <div class="flex justify-content-center align-self-center" v-else-if="checkOutliers(data[field.column_name], field.column_name)" style="background-color: lightsalmon; opacity: 60%" v-tooltip.top="'Outlier'">
+                    <div v-else-if="checkOutliers(data[field.column_name], field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: #F59E0B; opacity: 60% color:black" v-tooltip.top="'Outlier'">
                         <p class="text-center">{{ data[field.column_name] }}</p>
                     </div>
-                    <p v-else class="text-center">{{ data[field.column_name] }}</p>
+                    <p v-else class="text-center cell">{{ data[field.column_name] }}</p>
                 </template>
             </Column>
         </DataTable>
     </div>
 </template>
 <style scoped lang="scss">
+.cell {
+    padding: 1rem;
+
+    &.empty {
+        height: 3.5rem;
+        background-color: #41b783;
+        font-weight: 700;
+        color: #ffffff;
+    }
+}
 .dataset-badge {
     border-radius: var(--border-radius);
     padding: 0.25em 0.5rem;
