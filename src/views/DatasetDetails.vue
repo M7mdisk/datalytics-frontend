@@ -1,6 +1,6 @@
 <script>
 import DatasetService, { CLEANED, UNCLEANED } from '@/service/DatasetService';
-import { axiosAPI } from '@/axiosAPI';
+import { axiosAPI, BACKEND_URL } from '@/axiosAPI';
 
 export default {
     beforeRouteEnter(to, from, next) {
@@ -14,38 +14,38 @@ export default {
             CLEANED,
             UNCLEANED,
             id: null,
-            outliers: []
+            outliers: {},
+            isCleaning: false
         };
     },
     methods: {
         setData(d, id) {
-            const outl = d.data.columns;
-            let out = [];
             this.dataset = d;
             this.id = id;
-            outl.forEach((element) => {
-                out.push(element['outliers']);
+            const columns = d.data.columns;
+            columns.forEach((col) => {
+                this.outliers[col.column_name] = col.outliers;
             });
-            this.outliers = [].concat.apply([], out);
-        },
-        exportDataset() {
-            console.log('x');
         },
         async Clean() {
+            this.isCleaning = true;
             console.log(this.dataset);
             await axiosAPI.post(`/datasets/${this.id}/clean/`).then((data) => {
                 this.dataset.status = CLEANED;
                 this.dataset = data.data;
                 this.$toast.add({ severity: 'success', summary: 'Success Message', detail: 'Data Cleaned Successfully', life: 3000 });
+                this.isCleaning = false;
             });
         },
         checkEmpty(data) {
-            if (data == null || data == 'null' || data == '') return true;
+            if (data === null || data === 'null' || data === '') return true;
             return false;
         },
-        checkOutliers(data) {
-            if (this.outliers.indexOf(data) >= 0) return true;
-            return false;
+        checkOutliers(data, columnName) {
+            return this.outliers[columnName].includes(data);
+        },
+        getExportUrl() {
+            return BACKEND_URL + this.dataset.url;
         }
     }
 };
@@ -56,12 +56,14 @@ export default {
             <Toast />
             <h3>Dataset Details:</h3>
             <div class="flex gap-2">
-                <Button v-if="dataset.status == UNCLEANED" label="Clean" @click="Clean" icon="pi pi-wrench"></Button>
+                <Button v-if="dataset.status == UNCLEANED" label="Clean" @click="Clean" icon="pi pi-wrench" :disabled="isCleaning"></Button>
                 <div v-else>
                     <Menu ref="menu" :model="overlayMenuItems" :popup="true" />
                     <Button type="button" label="View Applied Techniques" class="p-button-outlined" icon="pi pi-angle-down" @click="toggleMenu" style="width: auto" />
                 </div>
-                <Button label="Export" icon="pi pi-download" @click="exportDataset"></Button>
+                <a :href="getExportUrl()" download>
+                    <Button label="Export" icon="pi pi-download" />
+                </a>
             </div>
         </div>
         <div>
@@ -94,7 +96,7 @@ export default {
                     <div v-if="checkEmpty(data[field.column_name])" class="col" style="background-color: lightcoral; opacity: 60%" v-tooltip.top="'Missing Value'">
                         <p>{{ data[field.column_name] }}</p>
                     </div>
-                    <div class="flex justify-content-center align-self-center" v-else-if="checkOutliers(data[field.column_name])" style="background-color: lightsalmon; opacity: 60%" v-tooltip.top="'Oulier'">
+                    <div class="flex justify-content-center align-self-center" v-else-if="checkOutliers(data[field.column_name], field.column_name)" style="background-color: lightsalmon; opacity: 60%" v-tooltip.top="'Outlier'">
                         <p class="text-center">{{ data[field.column_name] }}</p>
                     </div>
                     <p v-else class="text-center">{{ data[field.column_name] }}</p>
