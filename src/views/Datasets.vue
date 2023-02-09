@@ -22,8 +22,7 @@ const expandedRows = ref([]);
             </router-link>
         </div>
 
-        <DataTable :value="datasets" v-model:expandedRows="expandedRows" :rows="8" :paginator="true"
-            responsiveLayout="scroll">
+        <DataTable :value="datasets" v-model:expandedRows="expandedRows" :rows="8" :paginator="true" responsiveLayout="scroll">
             <Column :expander="true" headerStyle="width: 3rem" />
             <Column field="file_name" header="File Name">
                 <template #body="slotProps">
@@ -39,18 +38,17 @@ const expandedRows = ref([]);
             </Column>
             <Column field="status" header="Status">
                 <template #body="slotProps">
-                    <span
-                        :class="'dataset-badge status-' + (slotProps.data.status ? slotProps.data.status.toLowerCase() : '')">{{
-                            slotProps.data.status == CLEANED ? 'Cleaned' : 'Uncleaned'
-                        }}</span>
+                    <span :class="'dataset-badge status-' + (slotProps.data.status ? slotProps.data.status.toLowerCase() : '')">{{ slotProps.data.status == CLEANED ? 'Cleaned' : 'Uncleaned' }}</span>
                 </template>
             </Column>
             <Column field="uploaded_at" header="Uploaded At">
                 <template #body="slotProps">
                     {{
                         new Date(slotProps.data.uploaded_at).toLocaleString('en-GB', {
-                            hour12: true, timeZone:
-                                'Asia/Kuwait', timeStyle: 'short', dateStyle: 'medium'
+                            hour12: true,
+                            timeZone: 'Asia/Kuwait',
+                            timeStyle: 'short',
+                            dateStyle: 'medium'
                         })
                     }}
                 </template>
@@ -68,10 +66,7 @@ const expandedRows = ref([]);
                     </div>
                 </template>
             </Column>
-            <template #expansion="slotProps">{{
-                slotProps.data.description == '' ? 'No Description.' : 'Description: ' +
-                    slotProps.data.description
-            }}</template>
+            <template #expansion="slotProps">{{ slotProps.data.description == '' ? 'No Description.' : 'Description: ' + slotProps.data.description }}</template>
             <template #empty>
                 <div class="flex align-items-center justify-content-center">You have not uploaded any datasets</div>
             </template>
