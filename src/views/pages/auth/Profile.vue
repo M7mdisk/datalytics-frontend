@@ -1,13 +1,10 @@
 <script setup>
 import { axiosAPI } from '@/axiosAPI';
-import { useLayout } from '@/layout/composables/layout';
-import { ref, computed, onMounted, onBeforeMount } from 'vue';
-import AppConfig from '@/layout/AppConfig.vue';
+import { ref, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
-const { layoutConfig, contextPath } = useLayout();
 const firstname = ref('');
 const lastname = ref('');
 const email = ref('');
@@ -65,10 +62,10 @@ function editText() {
     }
 }
 async function getProfile() {
-    const Profile = null;
+    let profile = null;
     axiosAPI.get('/user/').then((data) => {
-        Profile = data.data;
-        return Profile;
+        profile = data.data;
+        return profile;
     });
 }
 onBeforeMount(async () => {
@@ -148,11 +145,7 @@ function checkData(f) {
     else return false;
 }
 
-function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function Edit() {
+async function editProfile() {
     const data = {
         email: email.value,
         first_name: firstname.value,
@@ -164,14 +157,14 @@ async function Edit() {
         res.then(async (resa) => {
             if (resa.status == 200) {
                 toast.add({ severity: 'success', summary: 'Success', detail: 'Profile edited successfully', life: 3000 });
-                await delay(1000);
-                router.push('/');
+                edit.value.flag = false;
+                EditP();
             }
         });
     }
 }
 
-async function Change() {
+async function changePassword() {
     const data = {
         new_password: password.value
     };
@@ -180,8 +173,7 @@ async function Change() {
         const res = axiosAPI.post('/user/reset_password/', data);
         res.then(async (resa) => {
             if (resa.status == 200) {
-                toast.add({ severity: 'success', summary: 'Success', detail: 'Password Changed successfully', life: 3000 });
-                await delay(1000);
+                toast.add({ severity: 'success', summary: 'Success', detail: 'Password changed successfully', life: 3000 });
                 router.push('/');
             }
         });
@@ -192,6 +184,9 @@ async function Change() {
 <template>
     <Toast />
     <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+        <div class="absolute top-0 left-0 m-5">
+            <Button label="Back" class="p-button-outlined" icon="pi pi-arrow-left" @click="router.back()"></Button>
+        </div>
         <div class="flex flex-column align-items-center justify-content-center">
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
                 <div class="w-full surface-card py-6 px-3 sm:px-8" style="border-radius: 53px">
@@ -225,7 +220,7 @@ async function Change() {
                                 <Button @click="editPassword.flag = !editPassword.flag" label="Change Password" class="p-button-text mr-2 mb-2" />
                             </div>
                         </div>
-                        <Button @click="Edit" type="submit" label="Edit" class="w-full p-3 text-l" v-if="edit.flag"></Button>
+                        <Button @click="editProfile" type="submit" label="Edit" class="w-full p-3 text-l" v-if="edit.flag"></Button>
                     </div>
 
                     <!-- reset pass -->
@@ -233,15 +228,16 @@ async function Change() {
                         <label for="New password" class="block text-900 text-l font-medium mb-1">New Password</label>
                         <InputText id="firstname1" type="password" placeholder="New Password" :class="isEmpty.password.class" v-model="password" />
                         <div class="fieldBox mb-5 mt-1">
-                            <InlineMessage v-if="isEmpty.password.msg">Password should be at least 8 characters </InlineMessage>
+                            <InlineMessage v-if="isEmpty.password.msg">Password must be at least 8 characters </InlineMessage>
                         </div>
                         <label for="confirm new password" class="block text-900 text-l font-medium mb-1">Confirm New Password</label>
                         <InputText id="lastname1" type="password" placeholder="Confirm New Password" :class="isEmpty.Newpassword.class" v-model="Newpassword" />
                         <div class="fieldBox mb-5 mt-1">
-                            <InlineMessage v-if="isEmpty.Newpassword.msg">Make sure that the password is written correctly </InlineMessage>
+                            <InlineMessage v-if="isEmpty.Newpassword.msg">Passwords do not match</InlineMessage>
                         </div>
 
-                        <Button @click="Change" type="submit" label="Change" class="w-full p-3 text-l"></Button>
+                        <Button @click="changePassword" type="submit" label="Change" class="w-full p-3 text-l"></Button>
+                        <Button @click="editPassword.flag = !editPassword.flag" label="Back to profile" class="p-button-text mr-2 mt-2" />
                     </div>
                 </div>
             </div>
