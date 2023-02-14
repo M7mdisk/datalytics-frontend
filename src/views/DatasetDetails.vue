@@ -84,7 +84,7 @@ export default {
             </p>
         </div>
 
-        <DataTable class v-if="dataset.data" :value="dataset.data.data" :rows="20" :paginator="true" responsiveLayout="scroll" paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown">
+        <DataTable class v-if="dataset.data" :value="dataset.data.data" :rows="10" :paginator="true" responsiveLayout="scroll" paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown">
             <Column bodyStyle="padding:0; " :key="field.name" v-for="field in dataset.data.columns" :field="field.column_name" sortable headerStyle="width: 3rem">
                 <template #header>
                     <div class="d-flex flex-col gap-6 w-full" style="min-width: 10rem">
