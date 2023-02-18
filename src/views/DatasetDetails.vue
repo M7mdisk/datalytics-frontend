@@ -175,7 +175,6 @@ export default {
     methods: {
         setData(d, id) {
             this.dataset = d;
-           // this.overlayMenuItems= ([d.applied_techniques])
            this.setAplliedTech(d.applied_techniques)
             console.log(this.overlayMenuItems)
 
@@ -202,7 +201,7 @@ export default {
                 this.dataset = data.data;
                 this.$toast.add({ severity: 'success', summary: 'Success Message', detail: 'Data Cleaned Successfully', life: 3000 });
                 this.isCleaning = false;
-                this.overlayMenuItems = (data.applied_techniques)
+                this.setAplliedTech(data.data.applied_techniques)
                 console.log(data.applied_techniques)
             });
         },
@@ -250,8 +249,8 @@ export default {
                             <Column   field="name" header="Techniques Name"  style="width: 50%">
                             <template #body >
                                 <div class="grid" v-for="tec in overlayMenuItems[0]">
-                                    <div class="col-6 justify-content-center"> <p > {{ tec.name }}<hr></p> </div>
-                                    <div class="col-6 justify-content-center"> <p > {{ tec.value }}<hr></p> </div>
+                                    <div class="col-12 justify-content-center text-center"> <p class="text-primary" > {{ tec.name }}<hr></p> </div>
+                                    <div class="col-12 justify-content-center text-center"> <p class="text"> {{ tec.value }}<hr></p> </div>
                                </div>
 
                             </template>
