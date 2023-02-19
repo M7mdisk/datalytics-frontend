@@ -6,35 +6,53 @@ import Papa from 'papaparse';
 import { useRouter } from 'vue-router';
 import { axiosAPI } from '@/axiosAPI';
 
+const fileUpload = ref(null);
 const router = useRouter();
 const toast = useToast();
-const files = ref([]);
+const myFiles = ref([]);
 const Description = ref('');
 let datasetflag = ref(false);
 const uploading = ref(false);
+const errorMessage = ref('');
+
 const onClear = (clear) => {
     clear();
     datasetflag.value = false;
 };
 const onRemoveTemplatingFile = (file, onFileRemove, index) => {
-    files.value = [];
+    myFiles.value = [];
     onFileRemove(index);
     datasetflag.value = false;
 };
 
 const onSelectedFiles = (event) => {
-    files.value = event.files;
+    errorMessage.value = '';
+    console.log('onSelectedfiles');
+    console.log(event.files);
+    fileUpload.value.files = [];
+    uploadEvent(
+        event.files[0],
+        () => {
+            myFiles.value = [event.files[0]];
+            fileUpload.value.files = [event.files[0]];
+        },
+        (error) => {
+            myFiles.value = [];
+            fileUpload.value.files = [];
+            errorMessage.value = error;
+        }
+    );
 };
 const onRemoveUploadedFile = (removeUploadedFile, index) => {
     removeUploadedFile(index);
-    files.value = [];
+    myFiles.value = [];
+    fileUpload.value.files = [];
     datasetflag.value = false;
 };
 
-const uploadEvent = (callback) => {
+const uploadEvent = (file, successCallback, errorCallback) => {
     const wb = new Excel.Workbook();
     const reader = new FileReader();
-    const file = files.value[0];
     let isString = true;
     if (file.type == 'text/csv') {
         reader.readAsText(file);
@@ -51,9 +69,10 @@ const uploadEvent = (callback) => {
                 if (isString) {
                     toast.add({ severity: 'success', summary: 'Success', detail: 'File satisfies requirements.', life: 3000 });
                     datasetflag.value = true;
-                    callback();
+                    successCallback();
                 } else {
                     toast.add({ severity: 'error', summary: 'Denied', detail: 'First row must only contain column names.', life: 3000 });
+                    errorCallback('First row must only contain column names.');
                 }
             } else {
                 const msgs = [];
@@ -64,6 +83,7 @@ const uploadEvent = (callback) => {
                     msgs.push('not enough columns');
                 }
                 toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
+                errorCallback(msgs.join(' '));
             }
         };
     } else {
@@ -83,9 +103,10 @@ const uploadEvent = (callback) => {
                     if (isString) {
                         toast.add({ severity: 'success', summary: 'Success', detail: 'File satisfies requirements.', life: 3000 });
                         datasetflag.value = true;
-                        callback();
+                        successCallback();
                     } else {
                         toast.add({ severity: 'error', summary: 'Denied', detail: 'First row must only contain column names.', life: 3000 });
+                        errorCallback('First row must only contain column names.');
                     }
                 } else {
                     const msgs = [];
@@ -96,6 +117,7 @@ const uploadEvent = (callback) => {
                         msgs.push('not enough columns');
                     }
                     toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
+                    errorCallback(msgs.join(''));
                 }
             });
         };
@@ -122,7 +144,7 @@ async function upload() {
     uploading.value = true;
     if (datasetflag.value) {
         var data = new FormData();
-        data.append('file', files.value[0]);
+        data.append('file', myFiles.value[0]);
         data.append('description', Description.value);
         axiosAPI
             .post('/datasets/', data)
@@ -154,40 +176,38 @@ async function upload() {
 
         <div class="col-9">
             <div class="card flex flex-column gap-2">
-                <FileUpload name="demo[]" @upload="onTemplatedUpload($event)" :fileLimit="1" :multiple="false" accept=".xlsx,.csv" :maxFileSize="100000000" @select="onSelectedFiles" class="h-screen">
-                    <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
+                <FileUpload
+                    :show-cancel-button="false"
+                    :show-upload-button="false"
+                    name="demo[]"
+                    @upload="onTemplatedUpload($event)"
+                    :fileLimit="1"
+                    :multiple="false"
+                    accept=".xlsx,.csv"
+                    :maxFileSize="100000000"
+                    @select="onSelectedFiles"
+                    class="h-screen"
+                    ref="fileUpload"
+                >
+                    <template #header="{ chooseCallback, uploadCallback, clearCallback }">
                         <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                             <div class="flex gap-2">
                                 <Button @click="chooseCallback()" icon="pi pi-file" class="p-button-rounded" :disabled="datasetflag" v-tooltip.top="'Select File'"></Button>
-                                <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0" v-tooltip.top="'Validate file'"></Button>
-                                <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0" v-tooltip.top="'Delete'"></Button>
+                                <!-- <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" class="p-button-rounded p-button-success" :disabled="!files || files.length === 0" v-tooltip.top="'Validate file'"></Button> -->
+                                <!-- <Button @click="onClear(clearCallback)" icon="pi pi-times" class="p-button-rounded p-button-danger" :disabled="!files || files.length === 0" v-tooltip.top="'Delete'"></Button> -->
                             </div>
                         </div>
                     </template>
-                    <template #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }">
-                        <div v-if="files.length > 0">
+                    <template #content="{ removeUploadedFileCallback, removeFileCallback }">
+                        <div v-if="myFiles.length > 0">
                             <div class="flex flex-wrap p-0 sm:p-5 gap-1 align-items-center justify-content-center">
-                                <div v-for="(file, index) of files" :key="file.name + file.type + file.size" class="card m-0 px-5 flex flex-column border-1 surface-border align-items-center gap-3">
+                                <div v-for="(file, index) of myFiles" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
                                     <!-- <div>
                                         <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" class="shadow-2" />
                                     </div> -->
                                     <span class="font-semibold">{{ file.name }}</span>
                                     <div>{{ formatSize(file.size) }}</div>
-                                    <Badge value="Pending" severity="warning" />
-                                    <Button icon="pi pi-times" @click="onRemoveTemplatingFile(file, removeFileCallback, index)" v-tooltip.bottom="'Delete'" class="p-button-outlined p-button-danger p-button-rounded" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-if="uploadedFiles.length > 0">
-                            <div class="flex flex-wrap p-0 sm:p-5 gap-1 align-items-center justify-content-center">
-                                <div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
-                                    <!-- <div>
-                                        <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" class="shadow-2" />
-                                    </div> -->
-                                    <span class="font-semibold">{{ file.name }}</span>
-                                    <div>{{ formatSize(file.size) }}</div>
-                                    <Badge value="Completed" class="mt-3" severity="success" />
+                                    <Badge value="Ready" class="mt-3" severity="success" />
                                     <Button icon="pi pi-times" @click="onRemoveUploadedFile(removeUploadedFileCallback, index)" class="p-button-outlined p-button-danger p-button-rounded" />
                                 </div>
                             </div>
@@ -200,6 +220,9 @@ async function upload() {
                         </div>
                     </template>
                 </FileUpload>
+                <div class="mt-1">
+                    <InlineMessage v-if="errorMessage !== ''">{{ errorMessage }}</InlineMessage>
+                </div>
                 <div class="mt-1">
                     <Textarea placeholder="Description..." :autoResize="false" rows="8" class="w-full" v-model="Description" />
                 </div>
