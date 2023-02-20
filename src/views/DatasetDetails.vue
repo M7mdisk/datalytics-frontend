@@ -60,11 +60,11 @@ export default {
                 this.outliers[col.column_name] = col.outliers;
             });
             if (d.applied_techniques != null) {
-                this.changed = d.applied_techniques.modified;
                 this.setAppliedTechniques(d.applied_techniques);
             }
         },
         setAppliedTechniques(techs) {
+            this.changed = techs.modified;
             for (const key in this.overlayMenuItems) {
                 console.log(key, techs[key]);
                 this.overlayMenuItems[key].value = techs[key];
@@ -189,17 +189,17 @@ export default {
                 <template #header>
                     <div class="d-flex flex-col gap-6 w-full" style="min-width: 10rem">
                         <div class="mb-1 justify-content-center text-center">{{ field.column_name }}</div>
-                        <ProgressBar :title="(100 - field.percent_missing).toFixed(2) + '%'" :value="100 - field.percent_missing" :showValue="true" style="height: 1.5rem; width: 100%"></ProgressBar>
+                        <ProgressBar :title="(100 - field.percent_missing).toFixed(2) + '%'" :value="(100 - field.percent_missing).toFixed(2)" :showValue="true" style="height: 1.5rem; width: 100%"></ProgressBar>
                     </div>
                 </template>
                 <template #body="{ data }">
-                    <div v-if="checkEmpty(data[field.column_name])" class="cell empty" style="background-color: lightcoral; opacity: 60%" v-tooltip.top="'Missing Value'">
+                    <div v-if="checkEmpty(data[field.column_name])" class="cell empty" style="background-color: lightcoral" v-tooltip.top="'Missing Value'">
                         <p>{{ ' ' }}</p>
                     </div>
-                    <div v-else-if="checkModified(data, field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: aquamarine; opacity: 60%" v-tooltip.top="'Outlier'">
+                    <div v-else-if="checkModified(data, field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: aquamarine" v-tooltip.top="'Outlier'">
                         <p class="text-center text-black-alpha-90">{{ data[field.column_name] }}</p>
                     </div>
-                    <div v-else-if="checkOutliers(data[field.column_name], field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: khaki; opacity: 60%" v-tooltip.top="'Outlier'">
+                    <div v-else-if="checkOutliers(data[field.column_name], field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: khaki" v-tooltip.top="'Outlier'">
                         <p class="text-center text-black-alpha-90">{{ data[field.column_name] }}</p>
                     </div>
                     <p v-else class="text-center cell">{{ data[field.column_name] }}</p>

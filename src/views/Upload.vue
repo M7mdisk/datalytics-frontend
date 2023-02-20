@@ -83,7 +83,7 @@ const uploadEvent = (file, successCallback, errorCallback) => {
                     msgs.push('not enough columns');
                 }
                 toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
-                errorCallback(msgs.join(' '));
+                errorCallback(msgs.join(' and ') + '.');
             }
         };
     } else {
@@ -117,7 +117,7 @@ const uploadEvent = (file, successCallback, errorCallback) => {
                         msgs.push('not enough columns');
                     }
                     toast.add({ severity: 'error', summary: 'Denied', detail: msgs.join(''), life: 3000 });
-                    errorCallback(msgs.join(''));
+                    errorCallback(msgs.join(' and ') + '.');
                 }
             });
         };
