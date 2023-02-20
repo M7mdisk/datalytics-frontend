@@ -64,7 +64,9 @@ export default {
             }
         },
         setAppliedTechniques(techs) {
-            this.changed = techs.modified;
+            if (techs.modified) {
+                this.changed = techs.modified;
+            }
             for (const key in this.overlayMenuItems) {
                 console.log(key, techs[key]);
                 this.overlayMenuItems[key].value = techs[key];
