@@ -198,7 +198,7 @@ export default {
                     <div v-if="checkEmpty(data[field.column_name])" class="cell empty" style="background-color: lightcoral" v-tooltip.top="'Missing Value'">
                         <p>{{ ' ' }}</p>
                     </div>
-                    <div v-else-if="checkModified(data, field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: aquamarine" v-tooltip.top="'Outlier'">
+                    <div v-else-if="checkModified(data, field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: aquamarine" v-tooltip.top="'Modified'">
                         <p class="text-center text-black-alpha-90">{{ data[field.column_name] }}</p>
                     </div>
                     <div v-else-if="checkOutliers(data[field.column_name], field.column_name)" class="cell flex justify-content-center align-self-center" style="background-color: khaki" v-tooltip.top="'Outlier'">
