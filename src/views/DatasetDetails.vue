@@ -71,6 +71,18 @@ export default {
                 console.log(key, techs[key]);
                 this.overlayMenuItems[key].value = techs[key];
             }
+            for (const key in this.overlayMenuItems) {
+               // console.log(this.overlayMenuItems[key] instanceof Object)
+                if ((this.overlayMenuItems[key].value) instanceof Object) {
+                    const element = this.overlayMenuItems[key].value;
+                    const arr = []
+                    for (const key2 in element) {
+                        arr.push(((key2+" : " +element[key2]+"").replaceAll('_',' ')))
+    
+                    }
+                    this.overlayMenuItems[key].value = arr
+                }
+            }
         },
         toggle(event) {
             this.$refs.op.toggle(event);
@@ -99,6 +111,9 @@ export default {
         },
         getExportUrl() {
             return BACKEND_URL + this.dataset.url;
+        },
+        isArray(arr){
+            return arr instanceof Array
         }
     }
 };
@@ -122,14 +137,17 @@ export default {
 
                     <Button type="button" icon="pi pi-angle-down" label="View Applied Techniques" @click="toggle" aria-haspopup="true" aria-controls="overlay_panel" class="p-button-outlined" />
 
-                    <OverlayPanel ref="op" appendTo="body" id="overlay_panel" style="width: 250px" :breakpoints="{ '960px': '75vw' }">
+                    <OverlayPanel ref="op" appendTo="body" id="overlay_panel" style=";width:fit-content" :breakpoints="{ '960px': '75vw' } ">
                         <div v-for="tec in Object.values(overlayMenuItems)" v-bind:key="tec.name">
-                            <div class="flex justify-content-between">
+                            <div class="col justify-content-between">
                                 <p class="text-primary font-bold">{{ tec.name }}: {{ ' ' }}</p>
-                                <p class="text">{{ tec.value }}</p>
+                                <div class="grid" v-if='isArray(tec.value)' v-for = "t in tec.value"><p  class="col text">{{ t }} <br></p></div>
+                                <p v-else  class="text">{{ tec.value }}</p>
                             </div>
+
                         </div>
                     </OverlayPanel>
+                    
                 </div>
                 <a :href="getExportUrl()" download>
                     <Button label="Export" icon="pi pi-download" />

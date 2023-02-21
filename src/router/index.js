@@ -14,16 +14,16 @@ const router = createRouter({
                     // component: () => import('@/views/Dashboard.vue')
                     component: () => import('@/views/Datasets.vue')
                 },
-                // {
-                //     path: '/ml-models',
-                //     name: 'ML Modles',
-                //     component: () => import('@/views/MLPage.vue')
-                // },
-                // {
-                //     path: '/ml-models/new-ml-model',
-                //     name: 'New Model',
-                //     component: () => import('@/views/NewMLModel.vue')
-                // },
+                {
+                    path: '/ml-models',
+                    name: 'ML Modles',
+                    component: () => import('@/views/MLPage.vue')
+                },
+                {
+                    path: '/ml-models/new-ml-model',
+                    name: 'New Model',
+                    component: () => import('@/views/NewMLModel.vue')
+                },
                 {
                     path: '/datasets',
                     name: 'datasets',
