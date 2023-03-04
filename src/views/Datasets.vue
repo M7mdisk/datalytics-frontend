@@ -63,9 +63,12 @@ const expandedRows = ref([]);
                     <div class="flex-1 text-center">Actions</div>
                 </template>
 
-                <template #body="slotProps">
+                <template #body="{ data }">
                     <div class="flex-1 text-center">
-                            <Button label="Create Model" @click="toCreateML(slotProps.data.id)" icon="pi pi-plus" type="button" class="p-button-text"></Button>
+                        <router-link :to="`/ml-models/new-ml-model/${data.id}`" v-if="data.status === 'C'">
+                            <Button label="Create Model" icon="pi pi-plus" type="button" class="p-button-text"></Button>
+                        </router-link>
+                        <Button v-else label="Create Model" icon="pi pi-plus" type="button" class="p-button-text" disabled></Button>
                     </div>
                 </template>
             </Column>

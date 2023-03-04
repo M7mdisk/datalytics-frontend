@@ -104,6 +104,8 @@ import CodeHighlight from '@/components/CodeHighlight.vue';
 import BlockViewer from '@/components/BlockViewer.vue';
 
 import '@/assets/styles.scss';
+import 'vue3-circle-progress/dist/circle-progress.css';
+import CircleProgress from 'vue3-circle-progress';
 
 const app = createApp(App);
 
@@ -210,5 +212,6 @@ app.component('TreeSelect', TreeSelect);
 app.component('TreeTable', TreeTable);
 app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('VirtualScroller', VirtualScroller);
+app.component('CircleProgress', CircleProgress);
 
 app.mount('#app');

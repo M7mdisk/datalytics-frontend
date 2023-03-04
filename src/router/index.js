@@ -20,7 +20,7 @@ const router = createRouter({
                     component: () => import('@/views/MLPage.vue')
                 },
                 {
-                    path: '/ml-models/new-ml-model',
+                    path: '/ml-models/new-ml-model/:datasetId?',
                     name: 'New Model',
                     component: () => import('@/views/NewMLModel.vue')
                 },
@@ -35,13 +35,18 @@ const router = createRouter({
                     component: () => import('@/views/DatasetDetails.vue')
                 },
                 {
+                    path: '/models/:id',
+                    name: 'modeldetails',
+                    component: () => import('@/views/ModelDetails.vue')
+                },
+                {
                     path: '/datasets/upload',
                     name: 'uploaddataset',
                     component: () => import('@/views/Upload.vue')
-                },
+                }
             ]
         },
-    
+
         {
             path: '/pages/notfound',
             name: 'notfound',
@@ -63,8 +68,7 @@ const router = createRouter({
             name: 'signup',
             component: () => import('@/views/pages/auth/signup.vue')
         },
-       
-      
+
         {
             path: '/:pathMatch(.*)*',
             component: () => import('@/views/pages/NotFound.vue')
@@ -87,6 +91,5 @@ router.beforeEach((to, from, next) => {
         next({ name: 'login' });
     }
 });
-
 
 export default router;
