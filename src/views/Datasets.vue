@@ -58,9 +58,9 @@ const expandedRows = ref([]);
                     <div class="flex-1 text-center">Actions</div>
                 </template>
 
-                <template #body>
+                <template #body="{ data }">
                     <div class="flex-1 text-center">
-                        <router-link to="/ml-models/new-ml-model">
+                        <router-link :to="{ path: '/ml-models/new-ml-model', params: { datasetName: data.name } }">
                             <Button label="Create Model" icon="pi pi-plus" type="button" class="p-button-text"></Button>
                         </router-link>
                     </div>

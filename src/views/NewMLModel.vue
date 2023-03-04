@@ -1,7 +1,10 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 
+import { useRoute, useRouter } from 'vue-router';
 import { axiosAPI } from '@/axiosAPI';
+const router = useRouter();
+const route = useRoute();
 
 const datasets = ref({});
 const datasetsName = ref([]);
@@ -84,14 +87,18 @@ async function CreateModel() {
         target: selectedCol.value.id,
         features: usedcolID
     };
-    axiosAPI.post('/models/', data);
+    axiosAPI.post('/models/', data).then((res) => {
+        console.log(res.data);
+
+        router.push({ name: 'modeldetails', params: { id: res.data.id } });
+    });
 }
 </script>
 <template>
-    <h1>Create New Model:</h1>
+    <h3>Create New Model:</h3>
     <div class="grid p-fluid">
         <div class="col-12">
-            <div class="card shadow-1" style="min-height: 700px">
+            <div class="card shadow-1" style="min-height: 00px">
                 <div class="grid">
                     <div class="col-12 md:col-6">
                         <h5>Model name</h5>
