@@ -78,7 +78,7 @@ const onSortChange = (event) => {
                     </div>
                 </div>
                 <div class="flex mt-3 gap-2 justify-content-end">
-                    <router-link :to="`/models/${index+1}`">
+                    <router-link :to="`/models/${index+4}`">
                         <div><Button @click="" label="View" style="left: 0; bottom: 0; position: relative"
                                 class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
                     </router-link>

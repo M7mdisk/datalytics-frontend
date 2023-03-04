@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useToast } from 'primevue/usetoast';
 
 import { useRoute, useRouter } from 'vue-router';
 import { axiosAPI } from '@/axiosAPI';
 const router = useRouter();
 const route = useRoute();
+const toast = useToast();
 
 const datasets = ref({});
 const dropdownValue = ref('');
@@ -20,7 +22,7 @@ const check = computed(() => {
     return CheckData();
 });
 
-watch([modelName, selectedCol, usedCols], () => {});
+watch([modelName, selectedCol, usedCols], () => { });
 
 onMounted(() => {
     axiosAPI.get('/datasets/').then((data) => {
@@ -78,14 +80,22 @@ async function CreateModel() {
     };
     axiosAPI.post('/models/', data).then((res) => {
         console.log(res.data);
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Model Created succsesfully', life: 1500 });
 
-        router.push({ name: 'modeldetails', params: { id: res.data.id } });
+        setTimeout(function () {
+            // router.push({ name: 'modeldetails', params: { id: res.data.id } });
+            router.push({ name: 'ML Modles' });
+        }, 1500);
+
+
     });
 }
 </script>
 <template>
     <h3>Create New Model: {{ route.params.datasetId ?? 'fff' }}</h3>
     <div class="grid p-fluid">
+        <Toast />
+
         <div class="col-12">
             <div class="card shadow-1" style="min-height: 00px">
                 <div class="grid">
@@ -100,16 +110,19 @@ async function CreateModel() {
                         <h5 v-if="showClo">What do you want to predict?</h5>
                         <div v-if="showClo && datasets.length" class="grid formgrid">
                             <div class="col-12 mb-2">
-                                <Dropdown v-model="selectedCol" :options="datasetsCol" optionLabel="name" placeholder="Select" @change="colUsedToPred" />
+                                <Dropdown v-model="selectedCol" :options="datasetsCol" optionLabel="name"
+                                    placeholder="Select" @change="colUsedToPred" />
                             </div>
                         </div>
 
                         <h5 v-if="showUsedClo">What fields do you want to use in the prediction?</h5>
                         <div v-if="showUsedClo" class="grid formgrid">
                             <div class="col-12 mb-2">
-                                <MultiSelect v-model="usedCols" :options="datasetsUsedCol" optionLabel="name" placeholder="Select Columns" :filter="true">
+                                <MultiSelect v-model="usedCols" :options="datasetsUsedCol" optionLabel="name"
+                                    placeholder="Select Columns" :filter="true">
                                     <template #value="slotProps">
-                                        <div class="inline-flex align-items-center py-1 px-2 bg-primary text-primary border-round mr-2" v-for="option of slotProps.value" :key="option.code">
+                                        <div class="inline-flex align-items-center py-1 px-2 bg-primary text-primary border-round mr-2"
+                                            v-for="option of slotProps.value" :key="option.code">
                                             <div>{{ option.name }}</div>
                                         </div>
                                         <template v-if="!slotProps.value || slotProps.value.length === 0">
@@ -129,7 +142,8 @@ async function CreateModel() {
                         <h5>Dataset</h5>
                         <div class="grid formgrid">
                             <div class="col-12 mb-2">
-                                <Dropdown v-model="dropdownValue" :options="datasets" option-label="file_name" option-value="id" @change="getDatasetDetails" placeholder="Select" />
+                                <Dropdown v-model="dropdownValue" :options="datasets" option-label="file_name"
+                                    option-value="id" @change="getDatasetDetails" placeholder="Select" />
                                 <RouterLink to="/datasets/upload">
                                     <p class="ml-2 text-primary">Create new dataset</p>
                                 </RouterLink>
@@ -139,7 +153,8 @@ async function CreateModel() {
                 </div>
                 <div class="col-12 h-22rem xs:h-3rem"></div>
                 <div class="flex mr-6 justify-content-end">
-                    <div><Button @click="CreateModel" label="Create" style="left: 0; bottom: 0; position: relative" class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" :disabled="!check" /></div>
+                    <div><Button @click="CreateModel" label="Create" style="left: 0; bottom: 0; position: relative"
+                            class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" :disabled="!check" /></div>
                 </div>
             </div>
         </div>
