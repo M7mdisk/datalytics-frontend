@@ -7,7 +7,6 @@ const router = useRouter();
 const route = useRoute();
 
 const datasets = ref({});
-const datasetsName = ref([]);
 const dropdownValue = ref('');
 const showClo = ref(false);
 const datasetsCol = ref([]);
@@ -26,7 +25,10 @@ watch([modelName, selectedCol, usedCols], () => {});
 onMounted(() => {
     axiosAPI.get('/datasets/').then((data) => {
         datasets.value = data.data;
-        SetData(data.data);
+        if (route.params.datasetId) {
+            dropdownValue.value = Number(route.params.datasetId);
+            getDatasetDetails();
+        }
     });
 });
 
@@ -45,21 +47,8 @@ function CheckData() {
     }
 }
 
-function SetData(data) {
-    for (const key in data) {
-        datasetsName.value.push(data[key].file_name);
-    }
-}
-function GetId(name) {
-    for (const key in datasets.value) {
-        if (datasets.value[key].file_name == name) {
-            return datasets.value[key].id;
-        }
-    }
-}
-
 async function getDatasetDetails() {
-    const id = GetId(dropdownValue.value);
+    const id = dropdownValue.value;
     axiosAPI.get(`/datasets/${id}`).then((data) => {
         datasetsCol.value = data.data.columns;
     });
@@ -83,7 +72,7 @@ async function CreateModel() {
     }
     const data = {
         name: modelName.value,
-        dataset: GetId(dropdownValue.value),
+        dataset: dropdownValue.value,
         target: selectedCol.value.id,
         features: usedcolID
     };
@@ -95,7 +84,7 @@ async function CreateModel() {
 }
 </script>
 <template>
-    <h3>Create New Model:</h3>
+    <h3>Create New Model: {{ route.params.datasetId ?? 'fff' }}</h3>
     <div class="grid p-fluid">
         <div class="col-12">
             <div class="card shadow-1" style="min-height: 00px">
@@ -104,12 +93,12 @@ async function CreateModel() {
                         <h5>Model name</h5>
                         <div class="grid formgrid">
                             <div class="col-12 mb-4">
-                                <InputText type="text" v-model="modelName" placeholder="Model name"></InputText>
+                                <InputText type="text" v-model="modelName" placeholder="Model name..."></InputText>
                             </div>
                         </div>
 
                         <h5 v-if="showClo">What do you want to predict?</h5>
-                        <div v-if="showClo" class="grid formgrid">
+                        <div v-if="showClo && datasets.length" class="grid formgrid">
                             <div class="col-12 mb-2">
                                 <Dropdown v-model="selectedCol" :options="datasetsCol" optionLabel="name" placeholder="Select" @change="colUsedToPred" />
                             </div>
@@ -140,9 +129,9 @@ async function CreateModel() {
                         <h5>Dataset</h5>
                         <div class="grid formgrid">
                             <div class="col-12 mb-2">
-                                <Dropdown v-model="dropdownValue" :options="datasetsName" @change="getDatasetDetails" placeholder="Select" />
+                                <Dropdown v-model="dropdownValue" :options="datasets" option-label="file_name" option-value="id" @change="getDatasetDetails" placeholder="Select" />
                                 <RouterLink to="/datasets/upload">
-                                    <p class="ml-2 text-primary">Create New Dataset</p>
+                                    <p class="ml-2 text-primary">Create new dataset</p>
                                 </RouterLink>
                             </div>
                         </div>
