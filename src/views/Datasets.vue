@@ -10,10 +10,10 @@ onMounted(() => {
     datasetService.getDatasets().then((data) => (datasets.value = data));
 });
 
-function toCreateML(id){
-    router.push({ name: 'New Model', params: { id: id } });
+// function toCreateML(id){
+//     router.push({ name: 'New Model', params: { id: id } });
 
-}
+// }
 
 const expandedRows = ref([]);
 </script>

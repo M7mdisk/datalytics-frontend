@@ -47,7 +47,7 @@ const onSortChange = (event) => {
     </div>
 
     <div class="grid mr-8">
-        <div v-for="d in models" class="col-4">
+        <div v-for="(d,index) in models" class="col-4">
             <div class="card m-1 border-1 surface-border shadow-1">
                 <div class="ml-3">
                     <div class="text-left">
@@ -65,24 +65,34 @@ const onSortChange = (event) => {
                     </div>
 
                     <div class="flex align-items-center justify-content-between">
-                        <div class="flex align-items-center ml-3">
-                            <i class="pi pi-tag mr-2"></i>
-                            <span v-if="d.model_type == Regression" class="font-semibold">Regression</span>
-                            <span severity="info" v-else class="font-semibold">Categorical</span>
+                        <div class="flex align-items-center ml-3" v-if="d.model_type == Regression">
+                            <i class="pi pi-chart-line" style="font-size: 1.5rem"></i>
+
+                            <span class="font-semibold m-2">Numerical</span>
+                        </div>
+                        <div class="flex align-items-center ml-3" v-else>
+                            <i class="pi pi-tags" style="font-size: 1.5rem"></i>
+
+                            <span severity="info" class="font-semibold m-2">Categorical</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex mt-3 gap-2 justify-content-end">
-                    <div><Button @click="" label="READY" style="left: 0; bottom: 0; position: relative" class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
+                    <router-link :to="`/models/${index+1}`">
+                        <div><Button @click="" label="View" style="left: 0; bottom: 0; position: relative"
+                                class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
+                    </router-link>
                 </div>
             </div>
         </div>
         <div class="col-4">
             <router-link to="/ml-models/new-ml-model">
                 <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
-                    <div class="flex justify-content-center w-full h-full" style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
+                    <div class="flex justify-content-center w-full h-full"
+                        style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
                         <div class="m-8 justify-content-center">
-                            <div class="flex justify-content-center mt-4"><Button icon="pi pi-plus" class="mb-3 p-button-rounded" iconPos="center" /></div>
+                            <div class="flex justify-content-center mt-4"><Button icon="pi pi-plus"
+                                    class="mb-3 p-button-rounded" iconPos="center" /></div>
                             <P class="text-primary">Add New Model</P>
                         </div>
                     </div>
@@ -97,5 +107,4 @@ const onSortChange = (event) => {
     background-color: #eff3f8;
 }
 
-@import '@/assets/demo/styles/badges.scss';
-</style>
+@import '@/assets/demo/styles/badges.scss';</style>
