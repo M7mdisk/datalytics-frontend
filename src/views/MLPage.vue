@@ -5,10 +5,8 @@ import { useRouter } from 'vue-router';
 import { axiosAPI } from '@/axiosAPI';
 const { contextPath } = useLayout();
 const router = useRouter();
-const Regression = 'R'
-const Categorical = 'C'
-
-
+const Regression = 'R';
+const Categorical = 'C';
 
 const dataviewValue = ref(null);
 const layout = ref('grid');
@@ -20,11 +18,11 @@ const sortOptions = ref([
     { label: 'Price Low to High', value: 'price' }
 ]);
 
-const models = ref([])
+const models = ref([]);
 onMounted(() => {
     axiosAPI.get('/models/').then((data) => {
-        models.value = data.data
-    })
+        models.value = data.data;
+    });
 });
 
 const onSortChange = (event) => {
@@ -52,39 +50,39 @@ const onSortChange = (event) => {
         <div v-for="d in models" class="col-4">
             <div class="card m-1 border-1 surface-border shadow-1">
                 <div class="ml-3">
-                    <div class="text-left ">
+                    <div class="text-left">
                         <div class="text-2xl font-bold mt-8">Model {{ d.name }}</div>
-                        <div class="mb-3 ml-1">{{ new Date(d.created_at).toLocaleString('en-GB', {
-                            hour12: true,
-                            timeZone: 'Asia/Kuwait',
-                            timeStyle: 'short',
-                            dateStyle: 'medium'
-                        }) }}</div>
+                        <div class="mb-3 ml-1">
+                            {{
+                                new Date(d.created_at).toLocaleString('en-GB', {
+                                    hour12: true,
+                                    timeZone: 'Asia/Kuwait',
+                                    timeStyle: 'short',
+                                    dateStyle: 'medium'
+                                })
+                            }}
+                        </div>
                     </div>
 
                     <div class="flex align-items-center justify-content-between">
                         <div class="flex align-items-center ml-3">
                             <i class="pi pi-tag mr-2"></i>
                             <span v-if="d.model_type == Regression" class="font-semibold">Regression</span>
-                            <span severity="info" v-else class="font-semibold  ">Categorical</span>
-
+                            <span severity="info" v-else class="font-semibold">Categorical</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex mt-3 gap-2 justify-content-end">
-                    <div><Button @click="" label="READY" style="left: 0; bottom: 0; position: relative"
-                            class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
+                    <div><Button @click="" label="READY" style="left: 0; bottom: 0; position: relative" class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
                 </div>
             </div>
         </div>
         <div class="col-4">
             <router-link to="/ml-models/new-ml-model">
                 <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
-                    <div class="flex justify-content-center w-full h-full"
-                        style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
+                    <div class="flex justify-content-center w-full h-full" style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
                         <div class="m-8 justify-content-center">
-                            <div class="flex justify-content-center mt-4"><Button icon="pi pi-plus"
-                                    class="mb-3 p-button-rounded" iconPos="center" /></div>
+                            <div class="flex justify-content-center mt-4"><Button icon="pi pi-plus" class="mb-3 p-button-rounded" iconPos="center" /></div>
                             <P class="text-primary">Add New Model</P>
                         </div>
                     </div>
@@ -99,4 +97,5 @@ const onSortChange = (event) => {
     background-color: #eff3f8;
 }
 
-@import '@/assets/demo/styles/badges.scss';</style>
+@import '@/assets/demo/styles/badges.scss';
+</style>
