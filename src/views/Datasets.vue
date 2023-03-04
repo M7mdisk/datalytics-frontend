@@ -2,13 +2,18 @@
 import { onMounted, ref } from 'vue';
 import DatasetService, { CLEANED } from '../service/DatasetService';
 import { humanFileSize } from '@/utils/common';
-
+import { useRouter } from 'vue-router';
 const datasets = ref(null);
 const datasetService = new DatasetService();
-
+const router = useRouter();
 onMounted(() => {
     datasetService.getDatasets().then((data) => (datasets.value = data));
 });
+
+function toCreateML(id){
+    router.push({ name: 'New Model', params: { id: id } });
+
+}
 
 const expandedRows = ref([]);
 </script>
@@ -58,11 +63,9 @@ const expandedRows = ref([]);
                     <div class="flex-1 text-center">Actions</div>
                 </template>
 
-                <template #body>
+                <template #body="slotProps">
                     <div class="flex-1 text-center">
-                        <router-link to="/ml-models/new-ml-model">
-                            <Button label="Create Model" icon="pi pi-plus" type="button" class="p-button-text"></Button>
-                        </router-link>
+                            <Button label="Create Model" @click="toCreateML(slotProps.data.id)" icon="pi pi-plus" type="button" class="p-button-text"></Button>
                     </div>
                 </template>
             </Column>

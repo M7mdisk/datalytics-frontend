@@ -2,6 +2,8 @@
 import { ref, onMounted, computed, watch } from 'vue';
 
 import { axiosAPI } from '@/axiosAPI';
+// import router from '@/router';
+import { useRouter, useRoute } from 'vue-router';
 
 const datasets = ref({})
 const datasetsName = ref([])
@@ -13,6 +15,8 @@ const selectedCol = ref([])
 const usedCols = ref([])
 const modelName = ref('')
 const showUsedClo = ref(false)
+const route = useRoute();
+const router = useRouter();
 
 const check = computed(() => {
     return CheckData()
@@ -92,7 +96,9 @@ async function CreateModel() {
         target: selectedCol.value.id,
         features:usedcolID
     }
-    axiosAPI.post('/models/',data)
+    await axiosAPI.post('/models/',data).then((response)=>{
+        route.push({ name: 'ML Modles', params: { id: response.data.id } });
+    })
 }
 </script>
 <template>
