@@ -18,7 +18,8 @@ export default {
             outliers: {},
             changed: {},
             isCleaning: false,
-            overlayMenuItems: {
+            displayOverlay: false,
+            techniques: {
                 dropped_rows: {
                     name: 'Dropped Rows Count',
                     value: null
@@ -49,6 +50,28 @@ export default {
                 return data.filter((row) => Object.keys(row).some((col_name) => this.checkOutliers(row[col_name], col_name) || this.checkEmpty(row[col_name])));
             }
             return data;
+        },
+        techniques_table() {
+            const techs = this.techniques;
+            const columns = this.dataset.columns;
+
+            const rows = columns
+                .map((col) => col.name)
+                .map((col) => ({
+                    column: col,
+                    outlier_count: techs['outlier_count'][col] ?? 0,
+                    missing_values_count: techs['missing_values'][col].count,
+                    missing_values_tech: techs['missing_values'][col].count == 0 ? '-' : techs['missing_values'][col].tech === 'linreg' ? 'Linear regression' : 'K nearest neighbor (KNN)'
+                }));
+            return rows;
+        },
+        missing_total() {
+            const rows = this.techniques_table;
+            return rows.reduce((p, c) => (p += c['missing_values_count']), 0);
+        },
+        outlier_total() {
+            const rows = this.techniques_table;
+            return rows.reduce((p, c) => (p += c['outlier_count']), 0);
         }
     },
     methods: {
@@ -67,25 +90,28 @@ export default {
             if (techs.modified) {
                 this.changed = techs.modified;
             }
-            for (const key in this.overlayMenuItems) {
+            for (const key in this.techniques) {
                 console.log(key, techs[key]);
-                this.overlayMenuItems[key].value = techs[key];
+                this.techniques[key] = techs[key];
             }
-            for (const key in this.overlayMenuItems) {
-               // console.log(this.overlayMenuItems[key] instanceof Object)
-                if ((this.overlayMenuItems[key].value) instanceof Object) {
-                    const element = this.overlayMenuItems[key].value;
-                    const arr = []
-                    for (const key2 in element) {
-                        arr.push(((key2+" : " +element[key2]+"").replaceAll('_',' ')))
-    
-                    }
-                    this.overlayMenuItems[key].value = arr
-                }
-            }
+            this.techniques['total_missing'] = techs['missing_values']['missing_values_count'];
+            delete techs['missing_values']['missing_values_count'];
+            // for (const key in this.techniques) {
+            //     // console.log(this.overlayMenuItems[key] instanceof Object)
+            //     if (this.techniques[key] instanceof Object) {
+            //         const element = this.techniques[key];
+            //         const arr = [];
+            //         for (const key2 in element) {
+            //             arr.push((key2 + ' : ' + element[key2] + '').replaceAll('_', ' '));
+            //         }
+            //         this.techniques[key] = arr;
+            //     }
+            // }
         },
-        toggle(event) {
-            this.$refs.op.toggle(event);
+        toggle() {
+            this.displayOverlay = !this.displayOverlay;
+
+            // this.$refs.op.toggle(event);
         },
         async Clean() {
             this.isCleaning = true;
@@ -112,8 +138,8 @@ export default {
         getExportUrl() {
             return BACKEND_URL + this.dataset.url;
         },
-        isArray(arr){
-            return arr instanceof Array
+        isArray(arr) {
+            return arr instanceof Array;
         }
     }
 };
@@ -127,27 +153,76 @@ export default {
             <div class="flex gap-2">
                 <Button v-if="dataset.status == UNCLEANED" label="Clean" @click="Clean" icon="pi pi-wrench" :loading="isCleaning"></Button>
                 <div v-else>
-                    <!-- <SplitButton label="Primary" :model="overlayMenuItems" class="p-button-raised p-button-text mb-2">
-                    </SplitButton>
-
-                    <Menu ref="op" :model="overlayMenuItems" :popup="true" />
-                    <Button type="button" label="View Applied Techniques" class="p-button-outlined" icon="pi pi-angle-down"
-                        @click="toggleMenu" style="width: auto" />
- -->
-
                     <Button type="button" icon="pi pi-angle-down" label="View Applied Techniques" @click="toggle" aria-haspopup="true" aria-controls="overlay_panel" class="p-button-outlined" />
-
-                    <OverlayPanel ref="op" appendTo="body" id="overlay_panel" style=";width:fit-content" :breakpoints="{ '960px': '75vw' } ">
-                        <div v-for="tec in Object.values(overlayMenuItems)" v-bind:key="tec.name">
-                            <div class="col justify-content-between">
-                                <p class="text-primary font-bold">{{ tec.name }}: {{ ' ' }}</p>
-                                <div class="grid" v-if='isArray(tec.value)' v-for = "t in tec.value"><p  class="col text">{{ t }} <br></p></div>
-                                <p v-else  class="text">{{ tec.value }}</p>
+                    <Dialog header="Applied Techniques" v-model:visible="displayOverlay" :breakpoints="{ '960px': '75vw' }" :style="{ width: '50vw' }" :modal="true">
+                        <div class="flex flex-column gap-3">
+                            <div class="flex justify-content-btween gap-8">
+                                <div>
+                                    <p class="">
+                                        <span class="text-primary font-bold">Dropped Rows: {{ ' ' }}</span>
+                                        <span v-tooltip="'The number of duplicate rows that were deleted.'">
+                                            <i tooltip class="pi pi-info-circle"></i>
+                                        </span>
+                                    </p>
+                                    {{ techniques['dropped_rows'] }}
+                                </div>
+                                <div>
+                                    <p class="">
+                                        <span class="text-primary font-bold">Outliers technique: {{ ' ' }}</span>
+                                        <span v-tooltip="'What technique was applied to deal with outliers'">
+                                            <i tooltip class="pi pi-info-circle"></i>
+                                        </span>
+                                    </p>
+                                    {{ techniques['outlier_handeling'] === 'Imputation' ? 'Imputation through Winsorization' : 'Deletion' }}
+                                </div>
                             </div>
+                            <DataTable :value="techniques_table" :scrollable="false" scrollHeight="400px" scrollDirection="both" class="mt-3">
+                                <Column field="column" header="Column">
+                                    <template #footer>Total</template>
+                                </Column>
+                                <Column field="outlier_count" header="Number of outliers">
+                                    <template #footer>{{ outlier_total }}</template>
+                                </Column>
+                                <Column field="missing_values_count" header="Number of missing values">
+                                    <template #footer>{{ missing_total }}</template>
+                                </Column>
+                                <Column field="missing_values_tech"
+                                    ><template #header
+                                        >Missing values technique {{ '  ' }}
+                                        <span class="ml-1" v-tooltip.top="'What technique was applied to fill missing values'">
+                                            <i tooltip class="pi pi-info-circle"></i>
+                                        </span>
+                                    </template>
+                                </Column>
+                            </DataTable>
+                            <!-- <div>
+                                <p class="mb-1">
+                                    <span class="text-primary font-bold">Missing values: {{ ' ' }}</span>
+                                    <span v-tooltip="'The number of duplicate rows that were deleted.'">
+                                        <i tooltip class="pi pi-info-circle"></i>
+                                    </span>
+                                </p>
+                                <ul>
+                                    <li v-for="(val, col_name) in missing_vals_cols" v-bind:key="col_name">
+                                        <span class="text-color-secondary"> {{ col_name }}: </span>
+                                        filled
+                                        <span class="font-bold">
+                                            {{ val.count }}
+                                        </span>
+                                        missing values using
 
+                                        <span class="font-bold">
+                                            {{ val.tech == 'linreg' ? 'Linear regression' : 'KNN' }}
+                                        </span>
+                                    </li>
+                                </ul>
+                                <p>
+                                    Total number of missing values:
+                                    <span class="font-bold"> {{ techniques['total_missing'] }} </span>
+                                </p>
+                            </div> -->
                         </div>
-                    </OverlayPanel>
-                    
+                    </Dialog>
                 </div>
                 <a :href="getExportUrl()" download>
                     <Button label="Export" icon="pi pi-download" />
@@ -229,6 +304,17 @@ export default {
     </div>
 </template>
 <style scoped lang="scss">
+ul {
+    list-style-position: inside;
+    padding-left: 0;
+}
+.wrapper {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+}
+
 .cell {
     padding: 1rem;
 
