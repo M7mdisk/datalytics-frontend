@@ -41,7 +41,7 @@ function CheckData() {
     if (selectedCol.value.id == undefined) {
         return false;
     }
-    if (usedCols.value.length == 0) {
+    if (usedCols.value.length < 3) {
         return false;
     } else {
         console.log(selectedCol.value, usedCols.value);
@@ -83,8 +83,7 @@ async function CreateModel() {
         toast.add({ severity: 'success', summary: 'Success', detail: 'Model Created succsesfully', life: 1500 });
 
         setTimeout(function () {
-            // router.push({ name: 'modeldetails', params: { id: res.data.id } });
-            router.push({ name: 'ML Modles' });
+             router.push({ name: 'modeldetails', params: { id: res.data.id } });
         }, 1500);
 
 
@@ -135,7 +134,9 @@ async function CreateModel() {
                                         </div>
                                     </template>
                                 </MultiSelect>
-                            </div>
+                            </div>     
+                             <InlineMessage class="ml-3" v-if="usedCols.length<3" >Select at least 3 fields </InlineMessage>
+
                         </div>
                     </div>
                     <div class="col-12 md:col-6">
