@@ -28,7 +28,7 @@ const model_names = {
     <h3>Model Details:</h3>
     <div class="card flex gap-3 justify-content-between">
         <div class="flex gap-3">
-            <div><circle-progress :size="110" :percent="model.accuracy * 100 ? model.accuracy * 100 : 1" :show-percent="true" :viewport="true" /></div>
+            <div><circle-progress :size="110" :percent="model.accuracy * 100 != 0 ? model.accuracy * 100 : 1" :show-percent="true" :viewport="true" /></div>
             <div>
                 <h3 class="mb-0">{{ model.name }}</h3>
                 <p class="text-color-secondary mb-1">

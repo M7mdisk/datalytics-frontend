@@ -17,16 +17,18 @@ const selectedCol = ref([]);
 const usedCols = ref([]);
 const modelName = ref('');
 const showUsedClo = ref(false);
+const flag = ref(false);
+const loading = ref(false);
 
 const check = computed(() => {
     return CheckData();
 });
 
-watch([modelName, selectedCol, usedCols], () => { });
+watch([modelName, selectedCol, usedCols], () => {});
 
 onMounted(() => {
     axiosAPI.get('/datasets/').then((data) => {
-        datasets.value = data.data;
+        datasets.value = data.data.filter((dataset) => dataset.status == 'C');
         if (route.params.datasetId) {
             dropdownValue.value = Number(route.params.datasetId);
             getDatasetDetails();
@@ -50,6 +52,8 @@ function CheckData() {
 }
 
 async function getDatasetDetails() {
+    selectedCol.value = [];
+    usedCols.value = [];
     const id = dropdownValue.value;
     axiosAPI.get(`/datasets/${id}`).then((data) => {
         datasetsCol.value = data.data.columns;
@@ -67,6 +71,8 @@ function colUsedToPred() {
 }
 
 async function CreateModel() {
+    flag.value = true;
+    loading.value = true;
     const usedcolID = [];
     for (const key in usedCols.value) {
         console.log(usedCols.value[key]);
@@ -79,19 +85,21 @@ async function CreateModel() {
         features: usedcolID
     };
     axiosAPI.post('/models/', data).then((res) => {
-        console.log(res.data);
         toast.add({ severity: 'success', summary: 'Success', detail: 'Model Created succsesfully', life: 1500 });
-
         setTimeout(function () {
-             router.push({ name: 'modeldetails', params: { id: res.data.id } });
-        }, 1500);
-
-
+            router.push({ name: 'modeldetails', params: { id: res.data.id } });
+        }, 500);
     });
 }
 </script>
 <template>
-    <h3>Create New Model: {{ route.params.datasetId ?? 'fff' }}</h3>
+    <h3>Create New Model:</h3>
+    <Dialog v-model:visible="loading" :breakpoints="{ '960px': '75vw' }" closable="false" show-header="false" :modal="true"
+        ><div class="flex flex-column align-items-center justify-content-center gap-2">
+            <ProgressSpinner />
+            <h3 class="text-white">Creating Model...</h3>
+        </div>
+    </Dialog>
     <div class="grid p-fluid">
         <Toast />
 
@@ -109,19 +117,16 @@ async function CreateModel() {
                         <h5 v-if="showClo">What do you want to predict?</h5>
                         <div v-if="showClo && datasets.length" class="grid formgrid">
                             <div class="col-12 mb-2">
-                                <Dropdown v-model="selectedCol" :options="datasetsCol" optionLabel="name"
-                                    placeholder="Select" @change="colUsedToPred" />
+                                <Dropdown v-model="selectedCol" :options="datasetsCol" optionLabel="name" placeholder="Select" @change="colUsedToPred" />
                             </div>
                         </div>
 
                         <h5 v-if="showUsedClo">What fields do you want to use in the prediction?</h5>
                         <div v-if="showUsedClo" class="grid formgrid">
                             <div class="col-12 mb-2">
-                                <MultiSelect v-model="usedCols" :options="datasetsUsedCol" optionLabel="name"
-                                    placeholder="Select Columns" :filter="true">
+                                <MultiSelect v-model="usedCols" :options="datasetsUsedCol" optionLabel="name" placeholder="Select Columns" :filter="true">
                                     <template #value="slotProps">
-                                        <div class="inline-flex align-items-center py-1 px-2 bg-primary text-primary border-round mr-2"
-                                            v-for="option of slotProps.value" :key="option.code">
+                                        <div class="inline-flex align-items-center py-1 px-2 bg-primary text-primary border-round mr-2" v-for="option of slotProps.value" :key="option.code">
                                             <div>{{ option.name }}</div>
                                         </div>
                                         <template v-if="!slotProps.value || slotProps.value.length === 0">
@@ -134,17 +139,15 @@ async function CreateModel() {
                                         </div>
                                     </template>
                                 </MultiSelect>
-                            </div>     
-                             <InlineMessage class="ml-3" v-if="usedCols.length<3" >Select at least 3 fields </InlineMessage>
-
+                            </div>
+                            <InlineMessage class="ml-3" v-if="flag && usedCols.length < 3">Select at least 3 fields </InlineMessage>
                         </div>
                     </div>
                     <div class="col-12 md:col-6">
                         <h5>Dataset</h5>
                         <div class="grid formgrid">
                             <div class="col-12 mb-2">
-                                <Dropdown v-model="dropdownValue" :options="datasets" option-label="file_name"
-                                    option-value="id" @change="getDatasetDetails" placeholder="Select" />
+                                <Dropdown v-model="dropdownValue" :options="datasets" option-label="file_name" option-value="id" @change="getDatasetDetails" placeholder="Select" />
                                 <RouterLink to="/datasets/upload">
                                     <p class="ml-2 text-primary">Create new dataset</p>
                                 </RouterLink>
@@ -154,10 +157,27 @@ async function CreateModel() {
                 </div>
                 <div class="col-12 h-22rem xs:h-3rem"></div>
                 <div class="flex mr-6 justify-content-end">
-                    <div><Button @click="CreateModel" label="Create" style="left: 0; bottom: 0; position: relative"
-                            class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" :disabled="!check" /></div>
+                    <div><Button @click="CreateModel" label="Create" style="left: 0; bottom: 0; position: relative" class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" :disabled="!check" :loading="loading" /></div>
                 </div>
             </div>
         </div>
     </div>
 </template>
+<style>
+.p-dialog-header {
+    display: none;
+}
+.p-dialog-content {
+    background: rgba(0, 0, 0, 0) !important;
+}
+.p-dialog {
+    box-shadow: none;
+}
+
+@keyframes p-progress-spinner-color {
+    100%,
+    0% {
+        stroke: white;
+    }
+}
+</style>
