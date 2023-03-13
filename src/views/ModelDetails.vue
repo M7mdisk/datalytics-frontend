@@ -79,6 +79,20 @@ const model_names = {
                     <span class="font-bold">Dataset:</span>
                     <i class="pi pi-file-excel mx-1"></i>
                     <span class="fnt-bold">{{ ' ' + model.dataset }}</span>
+    <div class="card flex gap-3 justify-content-between">
+        <div class="flex gap-3">
+            <div><circle-progress :size="110" :percent="model.accuracy * 100 != 0 ? model.accuracy * 100 : 1" :show-percent="true" :viewport="true" /></div>
+            <div>
+                <h3 class="mb-0">{{ model.name }}</h3>
+                <p class="text-color-secondary mb-1">
+                    {{
+                        new Date(model.created_at).toLocaleString('en-GB', {
+                            hour12: true,
+                            timeZone: 'Asia/Kuwait',
+                            timeStyle: 'short',
+                            dateStyle: 'medium'
+                        })
+                    }}
                 </p>
                 <p>
                     <span class="font-bold">Predicting column:</span><span class="fnt-bold">{{ ' ' + model.target }}</span>

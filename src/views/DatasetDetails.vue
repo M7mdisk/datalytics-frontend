@@ -153,6 +153,9 @@ export default {
             <div class="flex gap-2">
                 <Button v-if="dataset.status == UNCLEANED" label="Clean" @click="Clean" icon="pi pi-wrench" :loading="isCleaning"></Button>
                 <div v-else>
+                    <router-link :to="`/ml-models/new-ml-model/${id}`" v-if="dataset.status === 'C'">
+                        <Button label="Create Model" icon="pi pi-plus" type="button" class="p-button-outlined mr-2"></Button>
+                    </router-link>
                     <Button type="button" icon="pi pi-angle-down" label="View Applied Techniques" @click="toggle" aria-haspopup="true" aria-controls="overlay_panel" class="p-button-outlined" />
                     <Dialog header="Applied Techniques" v-model:visible="displayOverlay" :breakpoints="{ '960px': '75vw' }" :style="{ width: '50vw' }" :modal="true">
                         <div class="flex flex-column gap-3">
