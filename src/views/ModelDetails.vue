@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue';
 import { axiosAPI } from '@/axiosAPI';
 const route = useRoute();
 const active = ref(0);
-
+const SelectedPage = ref('')
 const TabMenu = ref([
     {
         label: 'Analytics',
@@ -14,6 +14,9 @@ const TabMenu = ref([
         label: 'Use and Deploy',
     },
 
+]);
+const TabMenu2 = ref([
+    'Analytics', 'Use and Deploy'
 ]);
 const model = ref({});
 onMounted(() => {
@@ -50,10 +53,11 @@ function randomColor() {
 </script>
 <template>
     <h3>Model Details:</h3>
-    <div class="card justify-content-center">
-        <TabMenu :model="TabMenu" />
-
-
+    <div class="flex m-3 justify-content-center">
+        <div>
+            <TabMenu :model="TabMenu" />
+            <SelectButton v-model="SelectedPage" :options="TabMenu2" aria-labelledby="basic" />
+        </div>
 
     </div>
     <div>
@@ -95,7 +99,7 @@ function randomColor() {
                 <div class=" flex gap-3 justify-content-between">
                     <div class="flex gap-3">
                         <!-- <div><circle-progress :size="110" :percent="model.accuracy * 100 != 0 ? model.accuracy * 100 : 1"
-                                                                :show-percent="true" :viewport="true" /></div> -->
+                                                                        :show-percent="true" :viewport="true" /></div> -->
                         <div>
                             <h3 class="mb-0">{{ model.name }}</h3>
                             <p class="text-color-secondary mb-1">
@@ -159,16 +163,16 @@ function randomColor() {
         </div>
         <!-- segments -->
 
-        <div class=" grid ">
-            <div class="mb-6 ml-3">
+        <div class=" grid flex gap-3">
+            <div class="mb-1 ml-4">
                 <h2>Segments</h2>
                 <p class="text-color-secondary mb-1 text-lg ">Sets of similar records in your dataset, grouped by
                     outcome of
                     interest</p>
             </div>
 
-            <div class="grid col-12 ml-3  gap-5 ">
-                <div class="card col m-0 " >
+            <div class="grid col-12 ml-1 gap-3 ">
+                <div class="card col m-0 ">
                     <div class="grid justify-content-between">
                         <div class="col-1 mr-3">
                             <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="xlarge"
@@ -183,7 +187,7 @@ function randomColor() {
                     <div class="grid justify-content-between">
                         <div class="col m-2">
                             <p class="text-lg">Outcome likelihood:</p>
-                            <h2 class="ml-2">88%</h2>
+                            <h1 class="ml-2">88%</h1>
                         </div>
                         <div class=" col-8 justify-content-end">
                             <DataTable :value="products" stripedRows table-style="justify-content-center">
