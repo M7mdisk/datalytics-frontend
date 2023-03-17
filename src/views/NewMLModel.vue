@@ -89,7 +89,12 @@ async function CreateModel() {
         setTimeout(function () {
             router.push({ name: 'modeldetails', params: { id: res.data.id } });
         }, 500);
+    }).catch((err)=>{
+        loading.value = false;
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Something went wrong', life: 3500 });
+
     });
+    
 }
 </script>
 <template>
