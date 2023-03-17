@@ -14,13 +14,15 @@ const TabMenu = ref([
         label: 'Use and Deploy'
     }
 ]);
+const modelAcc = ref(0);
 const TabMenu2 = ref(['Analytics', 'Use and Deploy']);
 const model = ref({});
 onMounted(() => {
     axiosAPI.get(`/models/${route.params.id}`).then((res) => {
         model.value = res.data;
         featureImportance(res.data);
-        console.log(model.value.feature_importance)
+        modelAcc.value = Math.round(res.data.accuracy*100,2) 
+        console.log(modelAcc.value)
     });
 });
 const model_names = {
@@ -34,9 +36,27 @@ const model_names = {
     RFC: 'Random Forest Classifier'
 };
 
-function featureImportance(model){
+function accuracyColor(acc) {
+    if (acc < 40)
+        return '#FF0000'
+    if (acc < 80)
+        return '#FFA500'
+    else return '#00FF00'
+    
+}
+
+function featureImportance(model) {
     for (const key in model.feature_importance) {
-       topFields.value.push([key,Math.round(model.feature_importance[key]*100,2)])
+        topFields.value.push([key, Math.round(model.feature_importance[key] * 100, 2)])
+    }
+    topFields.value.sort(sortFunction)
+}
+function sortFunction(a, b) {
+    if (a[1] === b[1]) {
+        return 0;
+    }
+    else {
+        return (a[1] > b[1]) ? -1 : 1;
     }
 }
 
@@ -67,7 +87,10 @@ function randomColor() {
     <div>
         <div class="card flex gap-3 justify-content-between">
             <div class="flex gap-3">
-                <div><circle-progress :size="110" :percent="model.accuracy * 100 ? model.accuracy * 100 : 1" :show-percent="true" :viewport="true" /></div>
+                <!-- <div><circle-progress :style="{stroke : accuracyColor(model.accuracy)}" :size="110" :percent="model.accuracy * 100 ? model.accuracy * 100 : 1"
+                        :show-percent="true" :viewport="true" /></div> -->
+                        <Knob v-model="modelAcc" valueTemplate="{value}%" readonly  :valueColor="accuracyColor(modelAcc)"/>
+
                 <div>
                     <h3 class="mb-0">{{ model.name }}</h3>
                     <p class="text-color-secondary mb-1">
@@ -80,7 +103,8 @@ function randomColor() {
                             })
                         }}
                     </p>
-                    <div class="text-color-secondary flex align-items-center gap-1 justify-content center text-lg" v-if="model.model_type == 'C'">
+                    <div class="text-color-secondary flex align-items-center gap-1 justify-content center text-lg"
+                        v-if="model.model_type == 'C'">
                         <i class="pi pi-tags" style="font-size: 1.5rem"></i>
                         <p>Categorical</p>
                     </div>
@@ -103,10 +127,11 @@ function randomColor() {
                 <div class="flex gap-3 justify-content-between">
                     <div class="flex gap-3">
                         <!-- <div><circle-progress :size="110" :percent="model.accuracy * 100 != 0 ? model.accuracy * 100 : 1"
-                                                                        :show-percent="true" :viewport="true" /></div> -->
+                                                                            :show-percent="true" :viewport="true" /></div> -->
                         <div>
                             <p>
-                                <span class="font-bold">Predicting column:</span><span class="fnt-bold">{{ ' ' + model.target }}</span>
+                                <span class="font-bold">Predicting column:</span><span class="fnt-bold">{{ ' ' +
+                                    model.target }}</span>
                             </p>
                         </div>
                     </div>
@@ -119,9 +144,9 @@ function randomColor() {
             <h4 class="mb-1">Top Fields</h4>
             <p class="text-color-secondary text-lg">Fields ranked by their contribution to the prediction result</p>
             <div class="grid ml-1 mt-2 gap-2">
-                <div class="grid col-12"  v-for="feature in topFields">
+                <div class="grid col-12" v-for="feature in topFields">
                     <div class="col-1">
-                        <p class="text-lg">{{feature[0]}}</p>
+                        <p class="text-lg">{{ feature[0] }}</p>
                     </div>
                     <div class="col align-items-center">
                         <ProgressBar class="text-color-secondary px-0" :value="feature[1]"></ProgressBar>
@@ -134,18 +159,21 @@ function randomColor() {
         <div class="grid flex gap-3">
             <div class="ml-4 mt-1">
                 <h4 class="mb-1">Segments:</h4>
-                <p class="text-color-secondary mb-1 text-lg">Sets of similar records in your dataset, grouped by the outcome of interest</p>
+                <p class="text-color-secondary mb-1 text-lg">Sets of similar records in your dataset, grouped by the outcome
+                    of interest</p>
             </div>
 
             <div class="grid col-12 ml-1 gap-3">
                 <div class="card col m-0">
                     <div class="grid justify-content-between gap-1">
                         <div class="col-1">
-                            <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="large" shape="circle" icon="pi pi-star-fill" />
+                            <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="large"
+                                shape="circle" icon="pi pi-star-fill" />
                         </div>
                         <div class="col">
                             <h5 class="mb-1">Segement 1</h5>
-                            <p class="text-color-secondary">This segment has the highest likelihood of subscription being yes</p>
+                            <p class="text-color-secondary">This segment has the highest likelihood of subscription being
+                                yes</p>
                         </div>
                     </div>
                     <div class="grid justify-content-between">
@@ -164,11 +192,13 @@ function randomColor() {
                 <div class="card col">
                     <div class="grid justify-content-between gap-1">
                         <div class="col-1">
-                            <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="large" shape="circle" icon="pi pi-star-fill" />
+                            <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="large"
+                                shape="circle" icon="pi pi-star-fill" />
                         </div>
                         <div class="col">
                             <h5 class="mb-1">Segement 1</h5>
-                            <p class="text-color-secondary">This segment has the highest likelihood of subscription being yes</p>
+                            <p class="text-color-secondary">This segment has the highest likelihood of subscription being
+                                yes</p>
                         </div>
                     </div>
                     <div class="grid justify-content-between">
@@ -213,4 +243,12 @@ function randomColor() {
 .p-avatar-icon {
     color: random($limit: 5);
 }
+
+.p-knob-value{
+    color: aqua;
+    background-color: brown;
+}
+
+
+
 </style>
