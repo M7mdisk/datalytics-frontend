@@ -5,6 +5,7 @@ import { axiosAPI } from '@/axiosAPI';
 const route = useRoute();
 const active = ref(0);
 const SelectedPage = ref('Analytics');
+const topFields = ref([]);
 const TabMenu = ref([
     {
         label: 'Analytics'
@@ -18,6 +19,8 @@ const model = ref({});
 onMounted(() => {
     axiosAPI.get(`/models/${route.params.id}`).then((res) => {
         model.value = res.data;
+        featureImportance(res.data);
+        console.log(model.value.feature_importance)
     });
 });
 const model_names = {
@@ -30,6 +33,12 @@ const model_names = {
     DTC: 'Decision Tree Classifier',
     RFC: 'Random Forest Classifier'
 };
+
+function featureImportance(model){
+    for (const key in model.feature_importance) {
+       topFields.value.push([key,Math.round(model.feature_importance[key]*100,2)])
+    }
+}
 
 function randomColor() {
     // Generate random values for red, green, and blue
@@ -110,12 +119,12 @@ function randomColor() {
             <h4 class="mb-1">Top Fields</h4>
             <p class="text-color-secondary text-lg">Fields ranked by their contribution to the prediction result</p>
             <div class="grid ml-1 mt-2 gap-2">
-                <div class="grid col-12">
+                <div class="grid col-12"  v-for="feature in topFields">
                     <div class="col-1">
-                        <p class="text-lg">Age</p>
+                        <p class="text-lg">{{feature[0]}}</p>
                     </div>
                     <div class="col align-items-center">
-                        <ProgressBar class="text-color-secondary px-0" :value="50"></ProgressBar>
+                        <ProgressBar class="text-color-secondary px-0" :value="feature[1]"></ProgressBar>
                     </div>
                 </div>
             </div>
