@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { ref, onMounted,onBeforeMount } from 'vue';
+import { ref, onMounted } from 'vue';
 import { axiosAPI } from '@/axiosAPI';
 const route = useRoute();
 const active = ref(0);
@@ -23,10 +23,15 @@ onMounted(() => {
     axiosAPI.get(`/models/${route.params.id}`).then((res) => {
         model.value = res.data;
         featureImportance(res.data);
-        modelAcc.value = Math.round(res.data.accuracy*100, 2)
+        modelAcc.value = Math.round(res.data.accuracy * 100, 2)
         segments.value = res.data.segments
-        segOutcome.value.push(res.data.segments.most.___prediction__val)
-        segOutcome.value.push(res.data.segments.least.___prediction__val)
+        if (res.data.segments.most) {
+            segOutcome.value.push(res.data.segments.most.___prediction__val)
+            segOutcome.value.push(res.data.segments.least.___prediction__val)
+            delete res.data.segments.most.___prediction__val
+            delete res.data.segments.least.___prediction__val
+        }
+
 
     });
 });
@@ -52,13 +57,16 @@ function accuracyColor(acc) {
 }
 
 function featureImportance(model) {
+    const total = Object.values(model.feature_importance).reduce((a, b) => a + Math.abs(b), 0)
+    console.log({ total })
     for (const key in model.feature_importance) {
-        let value = Math.round(Math.abs(model.feature_importance[key] * 100), 3);
+        let value = Math.floor(Math.abs((model.feature_importance[key] / total) * 100), 3);
         if (value > 0) {
             topFields.value.push([key, value])
         }
     }
     topFields.value.sort(sortFunction)
+    console.log({ topFields: topFields.value })
 }
 function sortFunction(a, b) {
     if (a[1] === b[1]) {
@@ -97,7 +105,7 @@ function randomColor() {
         <div class="card flex gap-3 justify-content-between">
             <div class="flex gap-3">
                 <!-- <div><circle-progress :style="{stroke : accuracyColor(model.accuracy)}" :size="110" :percent="model.accuracy * 100 ? model.accuracy * 100 : 1"
-                                                    :show-percent="true" :viewport="true" /></div> -->
+                                                                                                                                                                                                        :show-percent="true" :viewport="true" /></div> -->
                 <Knob v-model="modelAcc" :size="120" valueTemplate="{value}%" readonly
                     :valueColor="accuracyColor(modelAcc)" />
 
@@ -137,7 +145,7 @@ function randomColor() {
                 <div class="flex gap-3 justify-content-between">
                     <div class="flex gap-3">
                         <!-- <div><circle-progress :size="110" :percent="model.accuracy * 100 != 0 ? model.accuracy * 100 : 1"
-                                                                                                        :show-percent="true" :viewport="true" /></div> -->
+                                                                                                                                                                                                                                                            :show-percent="true" :viewport="true" /></div> -->
                         <div>
                             <p>
                                 <span class="font-bold">Predicting column:</span><span class="fnt-bold">{{ ' ' +
@@ -153,13 +161,16 @@ function randomColor() {
         <div class="card">
             <h4 class="mb-1">Top Fields</h4>
             <p class="text-color-secondary text-lg">Fields ranked by their contribution to the prediction result</p>
-            <div class="grid ml-1 mt-2 gap-2">
-                <div class="grid col-12" v-for="feature in topFields">
-                    <div class="col-1">
+            <div class="grid ml-1 mt-2 ">
+                <div class="grid col-12 p-0 gap-2 mt-0 mb-0" v-for="feature in topFields">
+                    <div class="col-2">
                         <p class="text-lg">{{ feature[0] }}</p>
                     </div>
                     <div class="col align-items-center">
-                        <ProgressBar class="text-color-secondary px-0" :value="feature[1]"></ProgressBar>
+                        <ProgressBar class="text-color-secondary px-0" :value="feature[1] + 2">
+                            {{ feature[1] }}%
+                        </ProgressBar>
+
                     </div>
                 </div>
             </div>
@@ -172,9 +183,11 @@ function randomColor() {
                 <p class="text-color-secondary mb-1 text-lg">Sets of similar records in your dataset, grouped by the outcome
                     of interest</p>
             </div>
+
             <!-- Most -->
-            <div class="grid col-12 ml-1 gap-3">
-                <div class="card col m-0">
+            <div class="grid col-12 ml-1 gap-3" v-if="model.model_type == 'R'">
+
+                <div class="card col ">
                     <div class="grid justify-content-between gap-1">
                         <div class="col-1">
                             <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="large"
@@ -182,27 +195,30 @@ function randomColor() {
                         </div>
                         <div class="col">
                             <h5 class="mb-1">Segement 1</h5>
-                            <p class="text-color-secondary">This segment has the highest likelihood of subscription being
-                                yes</p>
+                            <p class="text-color-secondary">This segment has the <strong>
+                                    highest
+                                </strong>
+                                values for <strong>
+
+                                    {{ model.target }}
+                                </strong>
+                            </p>
                         </div>
                     </div>
                     <div class="grid justify-content-between">
                         <div class="col m-2">
-                            <p class="text-lg">Outcome likelihood:</p>
-                            <h3 class="ml-2">{{Math.round( segOutcome[0],2) }}%</h3>
+                            <p class="text-lg">Outcome value:</p>
+                            <h3 class="ml-2">{{ segOutcome[0].toFixed(2) }}</h3>
                         </div>
                         <div class="col-9 justify-content-end">
                             <DataTable :value="segments.most" stripedRows table-style="justify-content-center">
                                 <Column field="field" header="Field">
-                                    <template #body="slotProps">
-                                        <p v-if="slotProps.index.toString() != '___prediction__val'">{{ slotProps.index }}
-                                        </p>
+                                    <template #body="slotProps">{{ slotProps.index }}
                                     </template>
                                 </Column>
                                 <Column field="value" header="Value">
                                     <template #body="slotProps">
-                                        <p v-if="slotProps.index.toString() != '___prediction__val'">{{ slotProps.data }}
-                                        </p>
+                                        {{ slotProps.data }}
                                     </template>
                                 </Column>
                             </DataTable>
@@ -211,7 +227,7 @@ function randomColor() {
                 </div>
 
                 <!-- least -->
-                <div class="card col">
+                <div class="card col mb-5">
                     <div class="grid justify-content-between gap-1">
                         <div class="col-1">
                             <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="large"
@@ -219,27 +235,30 @@ function randomColor() {
                         </div>
                         <div class="col">
                             <h5 class="mb-1">Segement 2</h5>
-                            <p class="text-color-secondary">This segment has the highest likelihood of subscription being
-                                no</p>
+                            <p class="text-color-secondary">This segment has the <strong>
+                                    lowest
+                                </strong>
+                                values for <strong>
+
+                                    {{ model.target }}
+                                </strong>
+                            </p>
                         </div>
                     </div>
                     <div class="grid justify-content-between">
                         <div class="col m-2">
-                            <p class="text-lg">Outcome likelihood:</p>
-                            <h3 class="ml-2">{{Math.round( segOutcome[1],2) }}%</h3>
+                            <p class="text-lg">Outcome value:</p>
+                            <h3 class="ml-2">{{ segOutcome[1].toFixed(2) }}</h3>
                         </div>
                         <div class="col-9 justify-content-end">
                             <DataTable :value="segments.least" stripedRows table-style="justify-content-center">
-                                <Column field="most" header="Field">
-                                    <template #body="slotProps">
-                                        <p v-if="slotProps.index.toString() != '___prediction__val'">{{ slotProps.index }}
-                                        </p>
+                                <Column field="field" header="Field">
+                                    <template #body="slotProps">{{ slotProps.index }}
                                     </template>
                                 </Column>
-                                <Column field="least" header="Value">
+                                <Column field="value" header="Value">
                                     <template #body="slotProps">
-                                        <p v-if="slotProps.index.toString() != '___prediction__val'">{{ slotProps.data }}
-                                        </p>
+                                        {{ slotProps.data }}
                                     </template>
                                 </Column>
                             </DataTable>
@@ -247,6 +266,48 @@ function randomColor() {
                     </div>
                 </div>
             </div>
+
+
+            <div class="grid col-12 ml-1 gap-3" v-else>
+                <div class="card col m-0" v-for="(segmentObject, segmentName) in model.segments ?? {}">
+                    <div class="grid justify-content-between gap-1">
+                        <div class="col-1">
+                            <Avatar :style="{ backgroundColor: randomColor(), color: randomColor() }" size="large"
+                                shape="circle" icon="pi pi-star-fill" />
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1">Segment "{{ segmentName }}" </h5>
+                            <p class="text-color-secondary">This segment has the highest likelihood of <strong>{{
+                                model.target }}</strong> being
+                                <strong>{{ segmentName }}</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="grid justify-content-between">
+                        <div class="col m-2">
+                            <p class="text-lg">Outcome likelihood:</p>
+                            <h3 class="ml-2">{{ Math.round(segmentObject.confidence * 100, 2) }}%</h3>
+                            <!-- <h3 class="ml-2">{{ segmentObject.ac }}</h3> -->
+                        </div>
+                        <div class="col-9 justify-content-end">
+                            <DataTable :value="segmentObject.values" stripedRows table-style="justify-content-center">
+                                <Column field="field" header="Field">
+                                    <template #body="slotProps">
+                                        {{ slotProps.index }}
+                                    </template>
+                                </Column>
+                                <Column field="value" header="Value">
+                                    <template #body="slotProps">
+                                        {{ typeof slotProps.data == "string" ? slotProps.data :
+                                            Number(slotProps.data).toFixed(2) }}
+                                    </template>
+                                </Column>
+                            </DataTable>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </template>
@@ -261,7 +322,7 @@ function randomColor() {
 
 .p-progressbar-value {
     font-size: large;
-    
+
 }
 
 .p-progressbar-determinate {
@@ -280,4 +341,5 @@ function randomColor() {
 .p-knob-value {
     color: aqua;
     background-color: brown;
-}</style>
+}
+</style>
