@@ -168,7 +168,7 @@ const sortedModels = computed(() => {
                         style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
                         <div class="m-8 justify-content-center align-self-center">
                             <div class="flex justify-content-center align-self-center mt-4"><Button icon="pi pi-plus"
-                                    class="mb-3 p-button-rounded" iconPos="center" /></div>
+                                    class="mb-3 p-button-rounded p-button-raised" iconPos="center" /></div>
                             <P class="text-primary text-center">Add New Model</P>
                         </div>
                     </div>
