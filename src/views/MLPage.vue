@@ -79,65 +79,67 @@ const sortedModels = computed(() => {
     </div>
     <div class="card col  lg:mr-7">
 
-    <Toolbar>
-        <template #start>
-            <div class="col-12 lg:flex justify-content-between gap-4">
-                <span class="block mt-2 md:mt-0 p-input-icon-left gap-8">
-                    <i class="pi pi-search" />
-                    <InputText v-model="searchTerm" placeholder="Search..." />
-                </span>
-                <Dropdown v-model="selectedCategory" :options="category" editable optionLabel="name"
-                    placeholder="Select model type" class="w-full md:w-14rem" />
-            </div>
 
-
-
-        </template>
-
-        <template #end>
-            <div class="flex justify-content-center ml-4 lg:mr-4">
-                <Button style="background-color: transparent; color: gray;  border-color: transparent;"
-                    icon="pi pi-sort-alt" raised @click="sortOrder()" />
-            </div>
-        </template>
-    </Toolbar>
-
-
-
-
-
-</div>
-<div class="grid lg:mr-7 ml-1">
-    <div v-for="(d, index) in sortedModels" class="col-12 lg:col-4 sm:col-12">
-        <Card class="shadow-4 flipright animation-duration-400 animation-iteration-1">
-            <template #header>
-                <div class="flex flex-column pt-4 px-4 lg:px-8 overflow-hidden"
-                    :style="{ background: RandomColor(), height: '200px', clipPath: 'ellipse(170% 87% at 93% 13%)' }">
+        <Toolbar>
+            <template #start>
+                <div class="col-12 lg:flex justify-content-between gap-4">
+                    <span class="block mt-2 md:mt-0 p-input-icon-left gap-8">
+                        <i class="pi pi-search" />
+                        <InputText v-model="searchTerm" placeholder="Search..." />
+                    </span>
+                    <Dropdown v-model="selectedCategory" :options="category" editable optionLabel="name"
+                        placeholder="Select model type" class="w-full md:w-14rem" />
                 </div>
+
+
+
+            </template>
+
+            <template #end>
+                <div class="flex justify-content-center ml-4 lg:mr-4">
+                    <Button class="p-button-rounded p-button-secondary p-button-outlined mr-2 mb-2" icon="pi pi-sort-alt"
+                        raised @click="sortOrder()" v-tooltip.bottom="'Sort'" />
+
+                </div>
+            </template>
+        </Toolbar>
+
+
+
+
+
+    </div>
+    <div class="grid lg:mr-7 ml-1">
+        <div v-for="(d, index) in sortedModels" class="col-12 lg:col-4 md:col-6 sm:col-12">
+            <Card class="shadow-4 flipright animation-duration-400 animation-iteration-1">
+                <template #header>
+                    <div class="flex flex-column pt-4 px-4 lg:px-8 overflow-hidden"
+                        :style="{ background: RandomColor(), height: '200px', clipPath: 'ellipse(170% 87% at 93% 13%)' }">
+                    </div>
                 </template>
                 <template #content>
-                <div class="ml-3">
-                    <div class="text-left">
-                        <div class="text-2xl font-bold "> {{ d.name }}</div>
-                        <div class="mb-3 ml-1">
-                            {{
-                                new Date(d.created_at).toLocaleString('en-GB', {
-                                    hour12: true,
-                                    timeZone: 'Asia/Kuwait',
-                                    timeStyle: 'short',
-                                    dateStyle: 'medium'
-                                })
-                            }}
+                    <div class="ml-3">
+                        <div class="text-left">
+                            <div class="text-2xl font-bold "> {{ d.name }}</div>
+                            <div class="mb-3 ml-1">
+                                {{
+                                    new Date(d.created_at).toLocaleString('en-GB', {
+                                        hour12: true,
+                                        timeZone: 'Asia/Kuwait',
+                                        timeStyle: 'short',
+                                        dateStyle: 'medium'
+                                    })
+                                }}
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="flex align-items-center justify-content-between">
-                        <div class="flex align-items-center ml-3" v-if="d.model_type == Regression">
-                            <i class="pi pi-chart-line" style="font-size: 1.5rem"></i>
+                        <div class="flex align-items-center justify-content-between">
+                            <div class="flex align-items-center ml-3" v-if="d.model_type == Regression">
+                                <i class="pi pi-chart-line" style="font-size: 1.5rem"></i>
 
-                            <span class="font-semibold m-2">Numerical</span>
-                        </div>
-                        <div class="flex align-items-center ml-3" v-if="d.model_type == Categorical">
+                                <span class="font-semibold m-2">Numerical</span>
+                            </div>
+                            <div class="flex align-items-center ml-3" v-if="d.model_type == Categorical">
                                 <i class="pi pi-tags" style="font-size: 1.5rem"></i>
 
                                 <span severity="info" class="font-semibold m-2">Categorical</span>
@@ -146,17 +148,20 @@ const sortedModels = computed(() => {
                     </div>
                     <div class="flex mt-3 gap-2 justify-content-end">
                         <router-link :to="`/models/${d.id}`">
-                            <div><Button @click="" label="View" style="left: 0; bottom: 0; position: relative"
-                                    class="p-button-raised-rounded m-5 mr-2 mb-2 h-3rem" /></div>
+                            <div>
+
+                                <Button icon="pi pi-arrow-right" iconPos="right" @click="" label="View" style="left: 0; bottom: 0; position: relative"
+                                    class="p-button-rounded p-button-raised m-5 mr-2 mb-2 h-3rem" />
+                            </div>
                         </router-link>
 
                     </div>
                 </template>
             </Card>
-        
+
         </div>
-     
-        <div class="col-12 lg:col-4">
+
+        <div class="col-12 lg:col-4 md:col-6">
             <router-link to="/ml-models/new-ml-model">
                 <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
                     <div class="flex justify-content-center w-full h-full"

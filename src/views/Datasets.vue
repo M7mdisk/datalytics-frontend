@@ -29,24 +29,24 @@ const expandedRows = ref([]);
 
         <DataTable :value="datasets" v-model:expandedRows="expandedRows" :rows="8" :paginator="true" responsiveLayout="scroll">
             <Column :expander="true" headerStyle="width: 3rem" />
-            <Column field="file_name" header="File Name">
-                <template #body="slotProps">
+            <Column  field="file_name" header="File Name" sortable class="hover:text-primary">
+                <template #body="slotProps" >
                     <router-link :to="'/datasets/' + slotProps.data.id" class="text-primary no-underline">
                         {{ slotProps.data.file_name }}
                     </router-link>
                 </template>
             </Column>
-            <Column field="size" header="Size">
+            <Column field="size" header="Size" sortable class="hover:text-primary">
                 <template #body="slotProps">
                     {{ humanFileSize(slotProps.data.size) }}
                 </template>
             </Column>
-            <Column field="status" header="Status">
+            <Column field="status" header="Status" sortable class="hover:text-primary">
                 <template #body="slotProps">
                     <span :class="'dataset-badge status-' + (slotProps.data.status ? slotProps.data.status.toLowerCase() : '')">{{ slotProps.data.status == CLEANED ? 'Cleaned' : 'Uncleaned' }}</span>
                 </template>
             </Column>
-            <Column field="uploaded_at" header="Uploaded At">
+            <Column field="uploaded_at" header="Uploaded At" sortable class="hover:text-primary">
                 <template #body="slotProps">
                     {{
                         new Date(slotProps.data.uploaded_at).toLocaleString('en-GB', {
@@ -58,7 +58,7 @@ const expandedRows = ref([]);
                     }}
                 </template>
             </Column>
-            <Column>
+            <Column  class="hover:text-primary">
                 <template #header>
                     <div class="flex-1 text-center">Actions</div>
                 </template>

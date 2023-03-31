@@ -61,12 +61,27 @@ const model_names = {
 };
 
 function accuracyColor(acc) {
-    if (acc < 40)
-        return '#FF0000'
-    if (acc < 80)
-        return '#FFA500'
-    else return '#00FF00'
-
+  const colors = [
+    "#FF0000", // 0-9%
+    "#FF3300", // 10-19%
+    "#FF6600", // 20-29%
+    "#FF9900", // 30-39%
+    "#FFCC00", // 40-49%
+    "#FFFF00", // 50-59%
+    "#CCFF00", // 60-69%
+    "#99FF00", // 70-79%
+    "#66FF00", // 80-89%
+    "#008000", // 90-99%
+    "#0033FF" // 100%
+  ];
+  
+  // Ensure accuracy is within valid range
+  acc = Math.min(Math.max(acc, 0), 100);
+  
+  // Calculate the index of the matching color in the array
+  const colorIndex = Math.floor(acc / 10);
+  
+  return colors[colorIndex];
 }
 
 function featureImportance(model) {
@@ -208,10 +223,8 @@ const setChartData = () => {
     <div v-if="SelectedPage === 'Analytics'">
         <div class="card flex gap-3 justify-content-between">
             <div class="flex gap-3">
-                <!-- <div><circle-progress :style="{stroke : accuracyColor(model.accuracy)}" :size="110" :percent="model.accuracy * 100 ? model.accuracy * 100 : 1"
-                                                                                                                                                                                                                                                                                                    :show-percent="true" :viewport="true" /></div> -->
-                <Knob v-model="modelAcc" :size="120" valueTemplate="{value}%" readonly
-                    :valueColor="accuracyColor(modelAcc)" />
+                <Knob v-model="modelAcc" :size="120" valueTemplate="{value}%" 
+                    :valueColor="accuracyColor(modelAcc)" readonly />
 
                 <div>
                     <h3 class="mb-0">{{ model.name }}</h3>
@@ -248,8 +261,6 @@ const setChartData = () => {
                 </div>
                 <div class="flex gap-3 justify-content-between">
                     <div class="flex gap-3">
-                        <!-- <div><circle-progress :size="110" :percent="model.accuracy * 100 != 0 ? model.accuracy * 100 : 1"
-                                                                                                                                                                                                                                                                                                                                                        :show-percent="true" :viewport="true" /></div> -->
                         <div>
                             <p>
                                 <span class="font-bold">Predicting column:</span><span class="fnt-bold">{{ ' ' +

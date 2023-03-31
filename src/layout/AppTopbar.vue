@@ -69,7 +69,7 @@ const logOut = () => {
     <div class="layout-topbar">
         <router-link to="/" class="layout-topbar-logo">
             <!-- <img :src="logoUrl" alt="logo" /> -->
-            <span>SimpleAI</span>
+            <span class="hover:text-primary">SimpleAI</span>
         </router-link>
 
         <!-- <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
@@ -86,13 +86,13 @@ const logOut = () => {
                 <span>Calendar</span>
             </button> -->
             <router-link to="/profile">
-                <button class="p-link layout-topbar-button " v-tooltip.bottom="'Profile'">
+                <Button class="p-link layout-topbar-button hover:p-button-rounded p-button-text " v-tooltip.bottom="'Profile'">
                     <i class="pi pi-user"></i>
-                </button></router-link>
+                </Button></router-link>
             <router-link to="/login">
-                <button @click="logOut" class="p-link layout-topbar-button " v-tooltip.bottom="'Logout'">
+                <Button @click="logOut" class="p-link layout-topbar-button hover:p-button-rounded p-button-text " v-tooltip.bottom="'Logout'">
                     <i class="pi pi-sign-out"></i>
-                </button></router-link>
+                </Button></router-link>
             <!-- <button @click="onSettingsClick()" class="p-link layout-topbar-button">
                 <i class="pi pi-cog"></i>
                 <span>Settings</span>
