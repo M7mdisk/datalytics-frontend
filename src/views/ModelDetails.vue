@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeMount } from 'vue';
 import { axiosAPI } from '@/axiosAPI';
 import { useField, useForm } from 'vee-validate';
 
@@ -22,7 +22,7 @@ const modelAcc = ref(0);
 const TabMenu2 = ref(['Analytics', 'Use and Deploy']);
 const model = ref({});
 const maxWidth = ref(0);
-onMounted(() => {
+onBeforeMount(() => {
     axiosAPI.get(`/models/${route.params.id}`).then((res) => {
         model.value = res.data;
         featureImportance(res.data);
@@ -61,27 +61,27 @@ const model_names = {
 };
 
 function accuracyColor(acc) {
-  const colors = [
-    "#FF0000", // 0-9%
-    "#FF3300", // 10-19%
-    "#FF6600", // 20-29%
-    "#FF9900", // 30-39%
-    "#FFCC00", // 40-49%
-    "#FFFF00", // 50-59%
-    "#CCFF00", // 60-69%
-    "#99FF00", // 70-79%
-    "#66FF00", // 80-89%
-    "#008000", // 90-99%
-    "#0033FF" // 100%
-  ];
-  
-  // Ensure accuracy is within valid range
-  acc = Math.min(Math.max(acc, 0), 100);
-  
-  // Calculate the index of the matching color in the array
-  const colorIndex = Math.floor(acc / 10);
-  
-  return colors[colorIndex];
+    const colors = [
+        "#FF0000", // 0-9%
+        "#FF3300", // 10-19%
+        "#FF6600", // 20-29%
+        "#FF9900", // 30-39%
+        "#FFCC00", // 40-49%
+        "#FFFF00", // 50-59%
+        "#CCFF00", // 60-69%
+        "#99FF00", // 70-79%
+        "#66FF00", // 80-89%
+        "#008000", // 90-99%
+        "#0033FF" // 100%
+    ];
+
+    // Ensure accuracy is within valid range
+    acc = Math.min(Math.max(acc, 0), 100);
+
+    // Calculate the index of the matching color in the array
+    const colorIndex = Math.floor(acc / 10);
+
+    return colors[colorIndex];
 }
 
 function featureImportance(model) {
@@ -223,8 +223,8 @@ const setChartData = () => {
     <div v-if="SelectedPage === 'Analytics'">
         <div class="card flex gap-3 justify-content-between">
             <div class="flex gap-3">
-                <Knob v-model="modelAcc" :size="120" valueTemplate="{value}%" 
-                    :valueColor="accuracyColor(modelAcc)" readonly />
+                <Knob v-model="modelAcc" :size="120" valueTemplate="{value}%" :valueColor="accuracyColor(modelAcc)"
+                    readonly />
 
                 <div>
                     <h3 class="mb-0">{{ model.name }}</h3>
@@ -332,7 +332,8 @@ const setChartData = () => {
                         <div class="col-9 justify-content-end">
                             <DataTable :value="segments.most" stripedRows table-style="justify-content-center">
                                 <Column field="field" header="Field">
-                                    <template #body="slotProps">{{ slotProps.index }}
+                                    <template #body="slotProps">
+                                        {{ slotProps.index.substring(1) }}
                                     </template>
                                 </Column>
                                 <Column field="value" header="Value">
@@ -374,7 +375,7 @@ const setChartData = () => {
                             <DataTable :value="segments.least" stripedRows table-style="justify-content-center">
                                 <Column field="field" header="Field">
                                     <template #body="slotProps">
-                                        {{ slotProps.index }}
+                                        {{ slotProps.index.substring(1) }}
                                     </template>
                                 </Column>
                                 <Column field="value" header="Value">
@@ -387,7 +388,7 @@ const setChartData = () => {
                     </div>
                 </div>
 
-               
+
             </div>
 
 
@@ -417,7 +418,7 @@ const setChartData = () => {
                             <DataTable :value="segmentObject.values" stripedRows table-style="justify-content-center">
                                 <Column field="field" header="Field">
                                     <template #body="slotProps">
-                                        {{ slotProps.index }}
+                                        {{ slotProps.index.substring(1) }}
                                     </template>
                                 </Column>
                                 <Column field="value" header="Value">
@@ -448,11 +449,12 @@ const setChartData = () => {
                 <div v-if="sidebuttons.b1.selcted" class="">
                     <h1>Use Here:</h1>
                     <p class="text-lg ml-2">Quickly get one-off predictions for new datapoints </p>
-                    <div class="grid mt-5 mr-8 " >
-                        <div class="col sm:col-12 lg:col-3 gap-2 grid " style="min-width: 250px;" v-for="(feature, index) in features">
-                            <div class="col-12 pb-0 text-lg" >{{ feature.name }}</div>
+                    <div class="grid mt-5 mr-8 ">
+                        <div class="col sm:col-12 lg:col-3 gap-2 grid " style="min-width: 250px;"
+                            v-for="(feature, index) in features">
+                            <div class="col-12 pb-0 text-lg">{{ feature.name }}</div>
 
-                            <div class="ml-4" >
+                            <div class="ml-4">
                                 <InputText id="value" v-model="features[index].value" type="text" class="p-inputtext-sm" />
 
                             </div>
