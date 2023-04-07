@@ -94,25 +94,25 @@ const sortedModels = computed(() => {
 </div>
 
 
-<Toolbar class="mx-1 mb-4">
+<Toolbar class="mx-1 mb-4" >
     <template #start>
         <div class="col-12 lg:flex justify-content-between gap-3">
             <span class="block mt-2 md:mt-0 p-input-icon-left gap-8">
                 <i class="pi pi-search" />
-                <InputText v-model="searchTerm" placeholder="Search..." />
+                <InputText v-model="searchTerm" placeholder="Search..." :disabled="models.length==0" />
             </span>
             <Dropdown v-model="selectedCategory" :options="category" show-clear optionLabel="name"
-                placeholder="Select model type" class="w-full md:w-14rem" />
+                placeholder="Select model type" class="w-full md:w-14rem" :disabled="models.length==0" />
         </div>
 
 
 
         </template>
 
-        <template #end>
+        <template #end >
             <div class="flex justify-content-center ml-4 lg:mr-4">
                 <Button class="p-button-rounded p-button-secondary p-button-outlined mr-2 mb-2" icon="pi pi-sort-alt" raised
-                    @click="sortOrder()" v-tooltip.bottom="'Sort'" :label="SortType == 0 ? 'Ascending' : 'Descending'" />
+                    @click="sortOrder()" v-tooltip.bottom="'Sort'" :label="SortType == 0 ? 'Ascending' : 'Descending'" :disabled="models.length==0" />
 
             </div>
         </template>
@@ -122,8 +122,8 @@ const sortedModels = computed(() => {
 
 
 
-    <div class="grid lg:mr-7 ml-1">
-        <div v-for="(d, index) in sortedModels" class="col-12 lg:col-3 md:col-6 sm:col-12">
+    <div class="grid lg:mr-3  lg:ml-1">
+        <div v-for="(d, index) in sortedModels" class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
             <!-- <Card class="shadow-4 "> -->
             <Card class="shadow-4 flipright animation-duration-400 animation-iteration-1">
                 <template #header>
@@ -191,8 +191,14 @@ const sortedModels = computed(() => {
                                                                                                     </div>
                                                                                                 </router-link>
                                                                                             </div> -->
+        
 
     </div>
+    <div class="w-full m-0 card justify-content-center shadow-2 " v-if="models.length==0">
+
+            <p class="text-center text-color-secondary font-bold">No ML models created yet</p>
+            
+        </div>
 </template>
 
 <style scoped lang="scss">

@@ -2,7 +2,6 @@
 import { useRoute } from 'vue-router';
 import { ref, onMounted, computed, onBeforeMount } from 'vue';
 import { axiosAPI } from '@/axiosAPI';
-import { useField, useForm } from 'vee-validate';
 
 const route = useRoute();
 const active = ref(0);
@@ -41,9 +40,10 @@ onBeforeMount(() => {
             const featureWidth = featureElements[i][0].offsetWidth;
             maxWidth.value = Math.max(maxWidth.value, featureWidth);
         }
+        console.log(res.data.features)
 
         // maxWidth.value = maxWidth;
-        chartData.value = setChartData()
+        // chartData.value = setChartData(40,60)
 
     });
 });
@@ -134,6 +134,23 @@ function randomColor() {
 
 //use and deploy
 const features = ref([])
+const result = ref('')
+const prediction = computed(() => {
+    if (!result.value) {
+        return null;
+    }
+
+    const predictionData = result.value;
+    const outcomePrecntage = predictionData.prediction_probabilities.Yes > predictionData.prediction_probabilities.No ?
+        predictionData.prediction_probabilities.Yes * 100 :
+        predictionData.prediction_probabilities.No * 100;
+
+    return {
+        ...predictionData,
+        outcomePrecntage
+    };
+});
+const predictFlag = ref(false)
 const canPrecdict = computed(() => {
     return features.value.every(field => field.value !== '');
 }); const sidebuttons = ref({
@@ -151,12 +168,27 @@ const canPrecdict = computed(() => {
 
 function getFeatures(model) {
     for (const key in model.features) {
-        features.value.push({
+        let feature = {
             name: model.features[key].name,
             id: model.features[key].id,
             value: '',
-        })
+            values: model.features[key].values,
+            options: []
+
+        }
+
+        // if (feature.values != null) {
+
+        for (const f in feature.values) {
+            feature.options.push({
+                name: feature.values[f]
+            })
+        }
+        features.value.push(feature)
+        // }
+
     }
+    console.log(features.value)
 }
 
 function sideButton(num) {
@@ -179,33 +211,53 @@ function sideButton(num) {
 }
 
 async function predict() {
+    let data = {}
     for (const key in features.value) {
-        console.log(features.value[key])
+        if (typeof features.value[key].value === 'object')
+            data[features.value[key].name] = features.value[key].value.name
+        else
+            if (typeof Number(features.value[key].value) === 'number')
+                data[features.value[key].name] = parseInt(features.value[key].value)
+            else
+                data[features.value[key].name] = features.value[key].value
     }
+    console.log(data)
+
+    await axiosAPI.post(`/models/${route.params.id}/predict/`, data).then(
+        (res) => {
+            console.log(res.data)
+            predictFlag.value = true;
+            result.value = res.data
+            if (model.model_type === 'C') {
+                if (data.data.prediction_probabilities.Yes > data.data.prediction_probabilities.No) prediction.value['outcomePrecntage'] = data.data.prediction_probabilities.Yes * 100
+                else result.value['outcomePrecntage'] = data.data.prediction_probabilities.No * 100;
+            }
+            console.log(prediction)
+            chartData.value = setChartData(result.value.prediction_probabilities.Yes * 100, result.value.prediction_probabilities.No * 100)
+
+
+        }
+    )
 
 }
 
 
-
-
-
-
-//testing
+//Chart
 const chartData = ref();
 const chartOptions = ref({
     cutout: '60%'
 });
 
-const setChartData = () => {
+const setChartData = (yes, no) => {
     const documentStyle = getComputedStyle(document.body);
 
     return {
-        labels: ['A', 'B', 'C'],
+        labels: ['Yes', 'No'],
         datasets: [
             {
-                data: [540, 325, 702],
-                backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--yellow-500'), documentStyle.getPropertyValue('--green-500')],
-                hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--yellow-400'), documentStyle.getPropertyValue('--green-400')]
+                data: [yes, no],
+                backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--red-500'), documentStyle.getPropertyValue('--green-500')],
+                hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--red-400'), documentStyle.getPropertyValue('--green-400')]
             }
         ]
     };
@@ -423,8 +475,9 @@ const setChartData = () => {
                                 </Column>
                                 <Column field="value" header="Value">
                                     <template #body="slotProps">
-                                        {{ typeof slotProps.data == "string" ? slotProps.data :
-                                            Number(slotProps.data).toFixed(2) }}
+                                        {{
+                                            typeof slotProps.data == "string" ? slotProps.data :
+                                            Number(slotProps.data * 100).toFixed(2) }}
                                     </template>
                                 </Column>
                             </DataTable>
@@ -451,12 +504,14 @@ const setChartData = () => {
                     <p class="text-lg ml-2">Quickly get one-off predictions for new datapoints </p>
                     <div class="grid mt-5 mr-8 ">
                         <div class="col sm:col-12 lg:col-3 gap-2 grid " style="min-width: 250px;"
-                            v-for="(feature, index) in features">
+                            v-for="(feature) in features">
                             <div class="col-12 pb-0 text-lg">{{ feature.name }}</div>
 
                             <div class="ml-4">
-                                <InputText id="value" v-model="features[index].value" type="text" class="p-inputtext-sm" />
-
+                                <InputText id="value" v-model="feature.value" type="text" class="p-inputtext-sm "
+                                    style="width: 194px;" v-if="feature.options.length == 0" />
+                                <Dropdown v-model="feature.value" :options="feature.options" optionLabel="name"
+                                    placeholder="Select ..." class="w-full md:w-14rem" v-else />
                             </div>
                         </div>
 
@@ -465,9 +520,43 @@ const setChartData = () => {
                     <div class="col"><Button :disabled="!canPrecdict" @click="predict()" label="Pridect!"></Button></div>
                     <Divider />
                     <div>
-                        <div class="card">
-                            <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full md:w-30rem" />
+                        <div class=" " v-if="predictFlag && model.model_type == 'C'">
+                            <p class="text-3xl  text-color-secondary  flex gap-2 align-items-center">
+                                {{ model.target }} =
+                            <h1 v-if="prediction.prediction=='Yes'" class="mt-2 text-primary">{{ prediction.prediction }}</h1>
+                            <h1 v-else class="mt-2 text-red-500">{{ prediction.prediction }}</h1>
+
+                            <p class="text-lg align-items-baseline mt-2">({{ Number(prediction.outcomePrecntage).toFixed(2)
+                            }}% confidence)</p>
+                            </p>
+                            <div class="card grid">
+                                <div class="col">
+                                    <DataTable :value="prediction.prediction_probabilities" stripedRows
+                                        class="p-datatable-lg" table-style="justify-content-center">
+                                        <Column field="field" header="Value">
+                                            <template #body="slotProps">
+                                                {{ slotProps.index.substring(1) }}
+                                            </template>
+                                        </Column>
+                                        <Column field="value" header="Confidence">
+                                            <template #body="slotProps">
+                                                {{ typeof slotProps.data == "string" ? slotProps.data :
+                                                    Number(slotProps.data * 100).toFixed(2) }}%
+                                            </template>
+                                        </Column>
+                                    </DataTable>
+                                </div>
+                                <Chart type="doughnut" :data="chartData" :options="chartOptions"
+                                    class="col-6 w-full md:w-30rem" />
+                            </div>
                         </div>
+                        <!-- Numerical -->
+                        <div class=" " v-if="predictFlag && model.model_type == 'R'">
+                            <div class=" flex gap-3">
+                               <p class="text-3xl text-color-secondary"> The Prediction of {{ model.target }}= </p> <p class="text-primary font-bold  text-3xl">{{ Number(result.prediction).toFixed(2) }}</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div v-if="sidebuttons.b2.selcted">
