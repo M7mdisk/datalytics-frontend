@@ -135,6 +135,7 @@ function randomColor() {
 //use and deploy
 const features = ref([])
 const result = ref('')
+const predictColor =ref()
 const prediction = computed(() => {
     if (!result.value) {
         return null;
@@ -209,7 +210,41 @@ function sideButton(num) {
     }
 
 }
+function getLabels() {
+    let labels = []
+    for (const key in result.value.prediction_probabilities) {
+        labels.push(key)
 
+
+    }
+    return labels
+}
+function getValues() {
+    let values = []
+    for (const key in result.value.prediction_probabilities) {
+        values.push(result.value.prediction_probabilities[key])
+
+
+    }
+    return values;
+
+}
+function getMaxConfedance() {
+    let confedance = []
+        ; let max = null
+    for (const key in result.value.prediction_probabilities) {
+        confedance.push(result.value.prediction_probabilities[key] * 100)
+        if (result.value.prediction_probabilities[key] * 100 > max)
+            max = result.value.prediction_probabilities[key] * 100
+
+
+    }
+    return max;
+}
+function getpredictColor(data,predict){
+    console.log(data.datasets[0].backgroundColor[getLabels().indexOf(predict.prediction)])
+    return data.datasets[0].backgroundColor[getLabels().indexOf(predict.prediction)]
+}
 async function predict() {
     let data = {}
     for (const key in features.value) {
@@ -228,12 +263,15 @@ async function predict() {
             console.log(res.data)
             predictFlag.value = true;
             result.value = res.data
+            let lables = getLabels()
+            let values = getValues()
+            predictColor.value = getpredictColor(setChartData(values, lables),prediction.value)
             if (model.model_type === 'C') {
                 if (data.data.prediction_probabilities.Yes > data.data.prediction_probabilities.No) prediction.value['outcomePrecntage'] = data.data.prediction_probabilities.Yes * 100
                 else result.value['outcomePrecntage'] = data.data.prediction_probabilities.No * 100;
             }
             console.log(prediction)
-            chartData.value = setChartData(result.value.prediction_probabilities.Yes * 100, result.value.prediction_probabilities.No * 100)
+            chartData.value = setChartData(values, lables)
 
 
         }
@@ -248,14 +286,14 @@ const chartOptions = ref({
     cutout: '60%'
 });
 
-const setChartData = (yes, no) => {
+const setChartData = (data, labels) => {
     const documentStyle = getComputedStyle(document.body);
 
     return {
-        labels: ['Yes', 'No'],
+        labels: labels,
         datasets: [
             {
-                data: [yes, no],
+                data: data,
                 backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--red-500'), documentStyle.getPropertyValue('--green-500')],
                 hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--red-400'), documentStyle.getPropertyValue('--green-400')]
             }
@@ -521,12 +559,12 @@ const setChartData = (yes, no) => {
                     <Divider />
                     <div>
                         <div class=" " v-if="predictFlag && model.model_type == 'C'">
-                            <p class="text-3xl  text-color-secondary  flex gap-2 align-items-center">
-                                {{ model.target }} =
-                            <h1 v-if="prediction.prediction=='Yes'" class="mt-2 text-primary">{{ prediction.prediction }}</h1>
-                            <h1 v-else class="mt-2 text-red-500">{{ prediction.prediction }}</h1>
+                            <p class="text-3xl  text-color-secondary  flex gap-2 align-items-center"> The Prediction of
+                                <span class="text-black-alpha-90 font-bold">{{ model.target }}</span> =
+                            <h1  class="mt-2 " :style="{color: predictColor}">{{ prediction.prediction }}
+                            </h1>
 
-                            <p class="text-lg align-items-baseline mt-2">({{ Number(prediction.outcomePrecntage).toFixed(2)
+                            <p class="text-lg align-items-baseline mt-2">({{ Number(getMaxConfedance()).toFixed(2)
                             }}% confidence)</p>
                             </p>
                             <div class="card grid">
@@ -553,7 +591,9 @@ const setChartData = (yes, no) => {
                         <!-- Numerical -->
                         <div class=" " v-if="predictFlag && model.model_type == 'R'">
                             <div class=" flex gap-3">
-                               <p class="text-3xl text-color-secondary"> The Prediction of {{ model.target }}= </p> <p class="text-primary font-bold  text-3xl">{{ Number(result.prediction).toFixed(2) }}</p>
+                                <p class="text-3xl text-color-secondary"> The Prediction of <span
+                                        class="text-black-alpha-90 font-bold">{{ model.target }}</span>= </p>
+                                <p class="text-primary font-bold  text-3xl">{{ Number(result.prediction).toFixed(2) }}</p>
                             </div>
                         </div>
 
