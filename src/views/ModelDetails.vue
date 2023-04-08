@@ -135,7 +135,7 @@ function randomColor() {
 //use and deploy
 const features = ref([])
 const result = ref('')
-const predictColor =ref()
+const predictColor = ref()
 const prediction = computed(() => {
     if (!result.value) {
         return null;
@@ -241,8 +241,8 @@ function getMaxConfedance() {
     }
     return max;
 }
-function getpredictColor(data,predict){
-    console.log(data.datasets[0].backgroundColor[getLabels().indexOf(predict.prediction)])
+function getpredictColor(data, predict) {
+    console.log("colorrrr",[getLabels().indexOf(predict.prediction)])
     return data.datasets[0].backgroundColor[getLabels().indexOf(predict.prediction)]
 }
 async function predict() {
@@ -265,7 +265,7 @@ async function predict() {
             result.value = res.data
             let lables = getLabels()
             let values = getValues()
-            predictColor.value = getpredictColor(setChartData(values, lables),prediction.value)
+            predictColor.value = getpredictColor(setChartData(values, lables), prediction.value)
             if (model.model_type === 'C') {
                 if (data.data.prediction_probabilities.Yes > data.data.prediction_probabilities.No) prediction.value['outcomePrecntage'] = data.data.prediction_probabilities.Yes * 100
                 else result.value['outcomePrecntage'] = data.data.prediction_probabilities.No * 100;
@@ -294,8 +294,26 @@ const setChartData = (data, labels) => {
         datasets: [
             {
                 data: data,
-                backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--red-500'), documentStyle.getPropertyValue('--green-500')],
-                hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--red-400'), documentStyle.getPropertyValue('--green-400')]
+                backgroundColor: ['#E6331A', '#3B82F6', '#FF33FF', '#FFFF99', '#00B3E6',
+                    '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+                    '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                    '#FF99E6', '#CCFF1A', '#FF1A66', '#FF6633', '#33FFCC',
+                    '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                    '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+                    '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+                    '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+                    '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+                    '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'],
+                hoverBackgroundColor:  ['#E6331A', '#3B82F6', '#FF33FF', '#FFFF99', '#00B3E6', 
+		  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+		  '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
+		  '#FF99E6', '#CCFF1A', '#FF1A66', '#FF6633', '#33FFCC',
+		  '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
+		  '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+		  '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
+		  '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+		  '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
+		  '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF']
             }
         ]
     };
@@ -561,7 +579,7 @@ const setChartData = (data, labels) => {
                         <div class=" " v-if="predictFlag && model.model_type == 'C'">
                             <p class="text-3xl  text-color-secondary  flex gap-2 align-items-center"> The Prediction of
                                 <span class="text-black-alpha-90 font-bold">{{ model.target }}</span> =
-                            <h1  class="mt-2 " :style="{color: predictColor}">{{ prediction.prediction }}
+                            <h1 class="mt-2 " :style="{ color: predictColor }">{{ prediction.prediction }}
                             </h1>
 
                             <p class="text-lg align-items-baseline mt-2">({{ Number(getMaxConfedance()).toFixed(2)
