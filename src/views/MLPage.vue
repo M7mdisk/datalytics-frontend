@@ -29,10 +29,12 @@ const category = ref([
 ]);
 
 const models = ref([]);
+const fetched = ref(false);
 onMounted(() => {
     axiosAPI.get('/models/').then((data) => {
 
         models.value = data.data.map(x => ({ ...x, color: RandomColor() }));
+        fetched.value = true;
     });
 });
 
@@ -80,6 +82,9 @@ const sortedModels = computed(() => {
         return modelsToSort.sort((b, a) => new Date(b.created_at) - new Date(a.created_at));
 });
 
+const noModelsCreated = computed(() => {
+    return models.value.length == 0 && fetched.value
+})
 
 
 
@@ -87,32 +92,33 @@ const sortedModels = computed(() => {
 
 <template>
     <div class="flex  justify-content-between mb-3">
-        <h2>ML Models:</h2>
-        <router-link to="/ml-models/new-ml-model/">
-            <Button label="New ML Model" icon="pi pi-plus"></Button>
+    <h2>ML Models:</h2>
+    <router-link to="/ml-models/new-ml-model/">
+        <Button label="New ML Model" icon="pi pi-plus"></Button>
     </router-link>
 </div>
 
 
-<Toolbar class="mx-1 mb-4" >
+<Toolbar class="mx-1 mb-4">
     <template #start>
         <div class="col-12 lg:flex justify-content-between gap-3">
             <span class="block mt-2 md:mt-0 p-input-icon-left gap-8">
                 <i class="pi pi-search" />
-                <InputText v-model="searchTerm" placeholder="Search..." :disabled="models.length==0" />
-            </span>
-            <Dropdown v-model="selectedCategory" :options="category" show-clear optionLabel="name"
-                placeholder="Select model type" class="w-full md:w-14rem" :disabled="models.length==0" />
-        </div>
+                <InputText v-model="searchTerm" placeholder="Search..." :disabled="noModelsCreated" />
+                </span>
+                <Dropdown v-model="selectedCategory" :options="category" show-clear optionLabel="name"
+                    placeholder="Select model type" class="w-full md:w-14rem" :disabled="noModelsCreated" />
+            </div>
 
 
 
         </template>
 
-        <template #end >
+        <template #end>
             <div class="flex justify-content-center ml-4 lg:mr-4">
                 <Button class="p-button-rounded p-button-secondary p-button-outlined mr-2 mb-2" icon="pi pi-sort-alt" raised
-                    @click="sortOrder()" v-tooltip.bottom="'Sort'" :label="SortType == 0 ? 'Ascending' : 'Descending'" :disabled="models.length==0" />
+                    @click="sortOrder()" v-tooltip.bottom="'Sort'" :label="SortType == 0 ? 'Ascending' : 'Descending'"
+                    :disabled="noModelsCreated" />
 
             </div>
         </template>
@@ -177,28 +183,28 @@ const sortedModels = computed(() => {
 
         </div>
         <!-- 
-                                                                                            <div class="col-12 lg:col-3 md:col-6">
-                                                                                                <router-link to="/ml-models/new-ml-model">
-                                                                                                    <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
-                                                                                                        <div class="flex justify-content-center w-full h-full"
-                                                                                                            style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
-                                                                                                            <div class="m-8 justify-content-center align-self-center">
-                                                                                                                <div class="flex justify-content-center align-self-center mt-4"><Button icon="pi pi-plus"
-                                                                                                                        class="mb-3 p-button-rounded p-button-raised" iconPos="center" /></div>
-                                                                                                                <P class="text-primary text-center">Add New Model</P>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </router-link>
-                                                                                            </div> -->
-        
+                                                                                                                    <div class="col-12 lg:col-3 md:col-6">
+                                                                                                                        <router-link to="/ml-models/new-ml-model">
+                                                                                                                            <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
+                                                                                                                                <div class="flex justify-content-center w-full h-full"
+                                                                                                                                    style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
+                                                                                                                                    <div class="m-8 justify-content-center align-self-center">
+                                                                                                                                        <div class="flex justify-content-center align-self-center mt-4"><Button icon="pi pi-plus"
+                                                                                                                                                class="mb-3 p-button-rounded p-button-raised" iconPos="center" /></div>
+                                                                                                                                        <P class="text-primary text-center">Add New Model</P>
+                                                                                                                                    </div>
+                                                                                                                                </div>
+                                                                                                                            </div>
+                                                                                                                        </router-link>
+                                                                                                                    </div> -->
+
 
     </div>
-    <div class="w-full m-0 card justify-content-center shadow-2 " v-if="models.length==0">
+    <div class="w-full m-0 card justify-content-center shadow-2 " v-if="noModelsCreated">
 
-            <p class="text-center text-color-secondary font-bold">No ML models created yet</p>
-            
-        </div>
+        <p class="text-center text-color-secondary font-bold">No ML models created yet</p>
+
+    </div>
 </template>
 
 <style scoped lang="scss">

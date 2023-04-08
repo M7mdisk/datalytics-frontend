@@ -242,7 +242,7 @@ function getMaxConfedance() {
     return max;
 }
 function getpredictColor(data, predict) {
-    console.log("colorrrr",[getLabels().indexOf(predict.prediction)])
+    console.log("colorrrr", [getLabels().indexOf(predict.prediction)])
     return data.datasets[0].backgroundColor[getLabels().indexOf(predict.prediction)]
 }
 async function predict() {
@@ -304,16 +304,16 @@ const setChartData = (data, labels) => {
                     '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
                     '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
                     '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'],
-                hoverBackgroundColor:  ['#E6331A', '#3B82F6', '#FF33FF', '#FFFF99', '#00B3E6', 
-		  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-		  '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
-		  '#FF99E6', '#CCFF1A', '#FF1A66', '#FF6633', '#33FFCC',
-		  '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
-		  '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
-		  '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
-		  '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
-		  '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
-		  '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF']
+                hoverBackgroundColor: ['#E6331A', '#3B82F6', '#FF33FF', '#FFFF99', '#00B3E6',
+                    '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+                    '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                    '#FF99E6', '#CCFF1A', '#FF1A66', '#FF6633', '#33FFCC',
+                    '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                    '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+                    '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+                    '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+                    '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+                    '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF']
             }
         ]
     };
@@ -556,9 +556,9 @@ const setChartData = (data, labels) => {
             <Divider layout="vertical" class=""></Divider>
             <div class="col mr-8">
                 <div v-if="sidebuttons.b1.selcted" class="">
-                    <h1>Use Here:</h1>
-                    <p class="text-lg ml-2">Quickly get one-off predictions for new datapoints </p>
-                    <div class="grid mt-5 mr-8 ">
+                    <h3>Use Here:</h3>
+                    <p class="text-lg ">Quickly get one-off predictions for new datapoints </p>
+                    <div class="grid mt-2 mr-8 ">
                         <div class="col sm:col-12 lg:col-3 gap-2 grid " style="min-width: 250px;"
                             v-for="(feature) in features">
                             <div class="col-12 pb-0 text-lg">{{ feature.name }}</div>
@@ -577,10 +577,10 @@ const setChartData = (data, labels) => {
                     <Divider />
                     <div>
                         <div class=" " v-if="predictFlag && model.model_type == 'C'">
-                            <p class="text-3xl  text-color-secondary  flex gap-2 align-items-center"> The Prediction of
+                            <p class="text-2xl  text-color-secondary  flex gap-2 align-items-center"> Predicted value for
                                 <span class="text-black-alpha-90 font-bold">{{ model.target }}</span> =
-                            <h1 class="mt-2 " :style="{ color: predictColor }">{{ prediction.prediction }}
-                            </h1>
+                            <h2 class="mt-2 " :style="{ color: predictColor }">{{ prediction.prediction }}
+                            </h2>
 
                             <p class="text-lg align-items-baseline mt-2">({{ Number(getMaxConfedance()).toFixed(2)
                             }}% confidence)</p>
@@ -603,7 +603,7 @@ const setChartData = (data, labels) => {
                                     </DataTable>
                                 </div>
                                 <Chart type="doughnut" :data="chartData" :options="chartOptions"
-                                    class="col-6 w-full md:w-30rem" />
+                                    class="col-6 w-full md:w-25rem" />
                             </div>
                         </div>
                         <!-- Numerical -->
