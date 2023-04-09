@@ -304,6 +304,9 @@ const chartOptionsBar = ref({
     scales: {
         y: {
             beginAtZero: true
+        },
+        x: {
+            beginAtZero: true
         }
     }
 });
