@@ -104,7 +104,10 @@ import CodeHighlight from '@/components/CodeHighlight.vue';
 import BlockViewer from '@/components/BlockViewer.vue';
 
 import '@/assets/styles.scss';
+import VueCodeHighlight from 'vue-code-highlight';
 
+
+import CodeBlock from './components/CodeBlock.vue';
 // import 'vue3-circle-progress/dist/circle-progress.css';
 // import CircleProgress from 'vue3-circle-progress';
 
@@ -115,12 +118,14 @@ app.use(PrimeVue, { ripple: true });
 app.use(ToastService);
 app.use(DialogService);
 app.use(ConfirmationService);
+app.use(VueCodeHighlight)
 
 app.directive('tooltip', Tooltip);
 app.directive('badge', BadgeDirective);
 app.directive('ripple', Ripple);
 app.directive('styleclass', StyleClass);
 
+app.component('CodeBlock', CodeBlock)
 app.component('CodeHighlight', CodeHighlight);
 app.component('BlockViewer', BlockViewer);
 

@@ -2,6 +2,7 @@
 import { useRoute } from 'vue-router';
 import { ref, onMounted, computed, onBeforeMount } from 'vue';
 import { axiosAPI } from '@/axiosAPI';
+import CodeBlock from '@/components/CodeBlock.vue';
 
 const route = useRoute();
 const active = ref(0);
@@ -135,6 +136,7 @@ function randomColor() {
 //use and deploy
 const features = ref([])
 const result = ref('')
+const loading = ref(false)
 const predictColor = ref()
 const prediction = computed(() => {
     if (!result.value) {
@@ -222,7 +224,7 @@ function getLabels() {
 function getValues() {
     let values = []
     for (const key in result.value.prediction_probabilities) {
-        values.push(result.value.prediction_probabilities[key])
+        values.push(result.value.prediction_probabilities[key]*100)
 
 
     }
@@ -246,6 +248,7 @@ function getpredictColor(data, predict) {
     return data.datasets[0].backgroundColor[getLabels().indexOf(predict.prediction)]
 }
 async function predict() {
+    loading.value = true
     let data = {}
     for (const key in features.value) {
         if (typeof features.value[key].value === 'object')
@@ -260,6 +263,7 @@ async function predict() {
 
     await axiosAPI.post(`/models/${route.params.id}/predict/`, data).then(
         (res) => {
+            loading.value = false
             console.log(res.data)
             predictFlag.value = true;
             result.value = res.data
@@ -272,19 +276,74 @@ async function predict() {
             }
             console.log(prediction)
             chartData.value = setChartData(values, lables)
+            chartDataBar.value = setChartDataBar(values, lables)
 
 
         }
     )
 
 }
+//code
+const code = ref(` const Prism = require('prismjs');
 
+// The code snippet you want to highlight, as a string
+const code = 'var data = 1;'';
+
+// Returns a highlighted HTML string
+const html = Prism.highlight(code, Prism.languages.javascript, 'javascript'); `)
 
 //Chart
 const chartData = ref();
 const chartOptions = ref({
     cutout: '60%'
 });
+// bar 
+const isBar = ref(false)
+const chartDataBar = ref();
+const chartOptionsBar = ref({
+    scales: {
+        y: {
+            beginAtZero: true
+        }
+    }
+});
+
+const setChartDataBar = (data, labels) => {
+
+    return {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Confidence',
+                data: data,
+                backgroundColor: ['#E6331A', '#3B82F6', '#FF33FF', '#FFFF99', '#00B3E6',
+                    '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+                    '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                    '#FF99E6', '#CCFF1A', '#FF1A66', '#FF6633', '#33FFCC',
+                    '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                    '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+                    '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+                    '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+                    '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+                    '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'],
+                hoverBackgroundColor: ['#E6331A', '#3B82F6', '#FF33FF', '#FFFF99', '#00B3E6',
+                    '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+                    '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                    '#FF99E6', '#CCFF1A', '#FF1A66', '#FF6633', '#33FFCC',
+                    '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                    '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+                    '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+                    '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+                    '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+                    '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'],
+                borderWidth: 2
+            }
+        ]
+    };
+};
+
+
+
 
 const setChartData = (data, labels) => {
     const documentStyle = getComputedStyle(document.body);
@@ -573,7 +632,8 @@ const setChartData = (data, labels) => {
 
 
                     </div>
-                    <div class="col"><Button :disabled="!canPrecdict" @click="predict()" label="Pridect!"></Button></div>
+                    <div class="col"><Button :disabled="!canPrecdict" @click="predict()" label="Pridect!"
+                            :loading="loading"></Button></div>
                     <Divider />
                     <div>
                         <div class=" " v-if="predictFlag && model.model_type == 'C'">
@@ -602,8 +662,16 @@ const setChartData = (data, labels) => {
                                         </Column>
                                     </DataTable>
                                 </div>
-                                <Chart type="doughnut" :data="chartData" :options="chartOptions"
-                                    class="col-6 w-full md:w-25rem" />
+                                <div class="col-4  justify-content-center">
+                                    <div class="flex  align-items-center gap-2">
+                                        <Checkbox v-model="isBar" :binary="true" />
+                                        <label class="ml-2 mb-2 text-xl">Bar Chart</label>
+                                    </div>
+                                    <Chart v-if="isBar" type="bar" :data="chartDataBar" :options="chartOptionsBar" />
+
+                                    <Chart v-else type="doughnut" :data="chartData" :options="chartOptions"
+                                        class="col w-full " />
+                                </div>
                             </div>
                         </div>
                         <!-- Numerical -->
@@ -617,19 +685,24 @@ const setChartData = (data, labels) => {
 
                     </div>
                 </div>
-                <div v-if="sidebuttons.b2.selcted">
+
+                <!-- REST API -->
+                <div class="grid" v-if="sidebuttons.b2.selcted">
                     <h1>REST API:</h1>
-                    <div class="col">
+                    <div class="col-12">
                         <p class="text-lg">Easily integrate the model into your system and setup real-time
                             automations with APIs.</p>
                     </div>
-                    <div class="col">
+                    <div class="col-12">
                         <h5 class="bold"> Model ID</h5>
                         <p class="text-lg">2412413153515321351351351351531</p>
                     </div>
-                    <div class="col">
+                    <div class="col-12">
                         <h5 class="bold"> API Key</h5>
                         <p class="text-lg">2412413153515321351351351351531</p>
+                    </div>
+                    <div class="col-12">   
+                        <CodeBlock :code="code" language="javascript" />
                     </div>
                 </div>
             </div>
