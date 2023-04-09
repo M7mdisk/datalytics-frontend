@@ -92,22 +92,50 @@ const noModelsCreated = computed(() => {
 
 <template>
     <div class="flex  justify-content-between mb-3">
-    <h2>ML Models:</h2>
-    <router-link to="/ml-models/new-ml-model/">
-        <Button label="New ML Model" icon="pi pi-plus"></Button>
-    </router-link>
-</div>
+        <h2>ML Models:</h2>
+        <router-link to="/ml-models/new-ml-model/">
+            <Button label="New ML Model" icon="pi pi-plus"></Button>
+        </router-link>
+    </div>
 
 
-<Toolbar class="mx-1 mb-4">
-    <template #start>
-        <div class="col-12 lg:flex justify-content-between gap-3">
-            <span class="block mt-2 md:mt-0 p-input-icon-left gap-8">
-                <i class="pi pi-search" />
-                <InputText v-model="searchTerm" placeholder="Search..." :disabled="noModelsCreated" />
+    <Toolbar class="mx-1 mb-4">
+        <template #start>
+            <div class="col-12 lg:flex justify-content-between gap-3">
+                <span class="block mt-2 md:mt-0 p-input-icon-left gap-8">
+                    <i class="pi pi-search" />
+                    <InputText v-model="searchTerm" placeholder="Search..." :disabled="noModelsCreated" />
                 </span>
-                <Dropdown v-model="selectedCategory" :options="category" show-clear optionLabel="name"
-                    placeholder="Select model type" class="w-full md:w-14rem" :disabled="noModelsCreated" />
+                <!-- <Dropdown v-model="selectedCategory" :options="category" show-clear optionLabel="name"
+                    placeholder="Select model type" class="w-full md:w-14rem" :disabled="noModelsCreated" /> -->
+
+                <Dropdown v-model="selectedCategory" :options="category" s  optionLabel="name" placeholder="Select model type"
+                    class="w-full md:w-14rem" :disabled="noModelsCreated">
+                    <template #value="slotProps">
+                        <div v-if="slotProps.value.code === 'C'" class=" flex align-items-center">
+                            <i class="pi pi-tags m-1 mr-2" style="font-size: 1rem"></i>
+                            
+                        <div>{{ slotProps.value.name }}</div>
+                    </div>
+                    <div v-if="slotProps.value.code === 'R'" class=" flex align-items-center">
+                        <i class="pi pi-chart-line m-1 mr-2" style="font-size: 1rem"></i>
+                            
+                            <div>{{ slotProps.value.name }}</div>
+                    </div>
+                </template>
+                <template #option="slotProps">
+                         <div v-if="slotProps.option.code === 'C'" class=" flex align-items-center">
+                            <i class="pi pi-tags m-1 mr-2" style="font-size: 1rem"></i>
+                            
+                        <div>{{ slotProps.option.name }}</div>
+                    </div>
+                    <div v-if="slotProps.option.code === 'R'" class=" flex align-items-center">
+                        <i class="pi pi-chart-line m-1 mr-2" style="font-size: 1rem"></i>
+                            
+                            <div>{{ slotProps.option.name }}</div>
+                    </div>
+                    </template>
+                </Dropdown>
             </div>
 
 
@@ -183,20 +211,20 @@ const noModelsCreated = computed(() => {
 
         </div>
         <!-- 
-                                                                                                                    <div class="col-12 lg:col-3 md:col-6">
-                                                                                                                        <router-link to="/ml-models/new-ml-model">
-                                                                                                                            <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
-                                                                                                                                <div class="flex justify-content-center w-full h-full"
-                                                                                                                                    style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
-                                                                                                                                    <div class="m-8 justify-content-center align-self-center">
-                                                                                                                                        <div class="flex justify-content-center align-self-center mt-4"><Button icon="pi pi-plus"
-                                                                                                                                                class="mb-3 p-button-rounded p-button-raised" iconPos="center" /></div>
-                                                                                                                                        <P class="text-primary text-center">Add New Model</P>
+                                                                                                                        <div class="col-12 lg:col-3 md:col-6">
+                                                                                                                            <router-link to="/ml-models/new-ml-model">
+                                                                                                                                <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
+                                                                                                                                    <div class="flex justify-content-center w-full h-full"
+                                                                                                                                        style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
+                                                                                                                                        <div class="m-8 justify-content-center align-self-center">
+                                                                                                                                            <div class="flex justify-content-center align-self-center mt-4"><Button icon="pi pi-plus"
+                                                                                                                                                    class="mb-3 p-button-rounded p-button-raised" iconPos="center" /></div>
+                                                                                                                                            <P class="text-primary text-center">Add New Model</P>
+                                                                                                                                        </div>
                                                                                                                                     </div>
                                                                                                                                 </div>
-                                                                                                                            </div>
-                                                                                                                        </router-link>
-                                                                                                                    </div> -->
+                                                                                                                            </router-link>
+                                                                                                                        </div> -->
 
 
     </div>
@@ -212,5 +240,4 @@ const noModelsCreated = computed(() => {
     background-color: #eff3f8;
 }
 
-@import '@/assets/demo/styles/badges.scss';
-</style>
+@import '@/assets/demo/styles/badges.scss';</style>

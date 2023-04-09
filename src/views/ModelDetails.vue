@@ -224,7 +224,7 @@ function getLabels() {
 function getValues() {
     let values = []
     for (const key in result.value.prediction_probabilities) {
-        values.push(result.value.prediction_probabilities[key]*100)
+        values.push(result.value.prediction_probabilities[key] * 100)
 
 
     }
@@ -662,12 +662,16 @@ const setChartData = (data, labels) => {
                                         </Column>
                                     </DataTable>
                                 </div>
-                                <div class="col-4  justify-content-center">
-                                    <div class="flex  align-items-center gap-2">
+                                <div class="col-7  justify-content-center">
+                                    <div v-if="getLabels().length>5" class="flex  align-items-center gap-2">
                                         <Checkbox v-model="isBar" :binary="true" />
                                         <label class="ml-2 mb-2 text-xl">Bar Chart</label>
                                     </div>
-                                    <Chart v-if="isBar" type="bar" :data="chartDataBar" :options="chartOptionsBar" />
+                                    <Sidebar v-if="isBar" v-model:visible="isBar" :baseZIndex="1000" position="full">
+                                        
+                                        <Chart type="bar" :data="chartDataBar" :options="chartOptionsBar" />
+
+                                    </Sidebar>
 
                                     <Chart v-else type="doughnut" :data="chartData" :options="chartOptions"
                                         class="col w-full " />
@@ -701,7 +705,7 @@ const setChartData = (data, labels) => {
                         <h5 class="bold"> API Key</h5>
                         <p class="text-lg">2412413153515321351351351351531</p>
                     </div>
-                    <div class="col-12">   
+                    <div class="col-12">
                         <CodeBlock :code="code" language="javascript" />
                     </div>
                 </div>
