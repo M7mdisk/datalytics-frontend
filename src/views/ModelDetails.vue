@@ -243,6 +243,20 @@ function getMaxConfedance() {
     }
     return max;
 }
+function getConfidance() {
+    let confidance = []
+    for (const key in result.value.prediction_probabilities) {
+        confidance.push({
+            confidance: result.value.prediction_probabilities[key] * 100,
+            value: key
+
+        });
+
+    }
+    console.log(confidance);
+
+    return confidance;
+}
 function getpredictColor(data, predict) {
     console.log("colorrrr", [getLabels().indexOf(predict.prediction)])
     return data.datasets[0].backgroundColor[getLabels().indexOf(predict.prediction)]
@@ -650,28 +664,26 @@ const setChartData = (data, labels) => {
                             </p>
                             <div class="card grid">
                                 <div class="col">
-                                    <DataTable :value="prediction.prediction_probabilities" stripedRows
-                                        class="p-datatable-lg" table-style="justify-content-center">
-                                        <Column field="field" header="Value">
-                                            <template #body="slotProps">
-                                                {{ slotProps.index.substring(1) }}
-                                            </template>
+                                    <DataTable :value="getConfidance()" stripedRows class="p-datatable-lg"
+                                        table-style="justify-content-center">
+                                        <Column field="value" header="Value" sortable>
+
                                         </Column>
-                                        <Column field="value" header="Confidence">
+                                        <Column field="confidance" header="Confidence" sortable>
                                             <template #body="slotProps">
-                                                {{ typeof slotProps.data == "string" ? slotProps.data :
-                                                    Number(slotProps.data * 100).toFixed(2) }}%
+                                                {{ 
+                                                    Number(slotProps.data.confidance ).toFixed(2) }}%
                                             </template>
                                         </Column>
                                     </DataTable>
                                 </div>
                                 <div class="col-7  justify-content-center">
-                                    <div v-if="getLabels().length>5" class="flex  align-items-center gap-2">
+                                    <div v-if="getLabels().length > 5" class="flex  align-items-center gap-2">
                                         <Checkbox v-model="isBar" :binary="true" />
                                         <label class="ml-2 mb-2 text-xl">Bar Chart</label>
                                     </div>
                                     <Sidebar v-if="isBar" v-model:visible="isBar" :baseZIndex="1000" position="full">
-                                        
+
                                         <Chart type="bar" :data="chartDataBar" :options="chartOptionsBar" />
 
                                     </Sidebar>
