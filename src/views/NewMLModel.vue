@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import Loader from '@/components/loader.vue';
 
 import { useRoute, useRouter } from 'vue-router';
 import { axiosAPI } from '@/axiosAPI';
@@ -102,7 +103,8 @@ async function CreateModel() {
     <Dialog v-model:visible="loading" :breakpoints="{ '960px': '75vw' }" closable="false" show-header="false" :modal="true">
         <div class="flex flex-column align-items-center justify-content-center gap-2">
             <ProgressSpinner />
-            <i class="pi pi-spin pi-spinner" style="font-size: 4rem; color: white;"></i> 
+            <!-- <i class="pi pi-spin pi-spinner" style="font-size: 4rem; color: white;"></i>  -->
+            <Loader/>
             <h3 class="text-white">Creating Model...</h3>
         </div>
     </Dialog>

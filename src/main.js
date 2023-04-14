@@ -106,7 +106,7 @@ import BlockViewer from '@/components/BlockViewer.vue';
 import '@/assets/styles.scss';
 import VueCodeHighlight from 'vue-code-highlight';
 
-
+import Loader from './components/loader.vue'
 import CodeBlock from './components/CodeBlock.vue';
 // import 'vue3-circle-progress/dist/circle-progress.css';
 // import CircleProgress from 'vue3-circle-progress';
@@ -126,6 +126,7 @@ app.directive('ripple', Ripple);
 app.directive('styleclass', StyleClass);
 
 app.component('CodeBlock', CodeBlock)
+app.component('Loader',Loader)
 app.component('CodeHighlight', CodeHighlight);
 app.component('BlockViewer', BlockViewer);
 

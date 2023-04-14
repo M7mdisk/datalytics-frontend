@@ -22,8 +22,9 @@ const modelAcc = ref(0);
 const TabMenu2 = ref(['Analytics', 'Use and Deploy']);
 const model = ref({});
 const maxWidth = ref(0);
-onBeforeMount(() => {
-    axiosAPI.get(`/models/${route.params.id}`).then((res) => {
+const snippets = ref();
+onBeforeMount(async () => {
+    await axiosAPI.get(`/models/${route.params.id}`).then((res) => {
         model.value = res.data;
         featureImportance(res.data);
         getFeatures(res.data)
@@ -47,6 +48,11 @@ onBeforeMount(() => {
         // chartData.value = setChartData(40,60)
 
     });
+    await axiosAPI.get(`/models/${route.params.id}/snippet/`).then((res) => {
+        console.log(res.data)
+        snippets.value = res.data;
+        allLang.value = getLang(res.data);
+    })
 });
 
 
@@ -305,6 +311,16 @@ const code = 'var data = 1;'';
 
 // Returns a highlighted HTML string
 const html = Prism.highlight(code, Prism.languages.javascript, 'javascript'); `)
+function getLang(data) {
+    let lang = []
+    for (const key in data) {
+        lang.push({ name: key })
+    }
+    console.log(lang)
+    return lang
+}
+const allLang = ref([]);
+const selectedLang = ref({name: 'javascript'})
 
 //Chart
 const chartData = ref();
@@ -671,8 +687,8 @@ const setChartData = (data, labels) => {
                                         </Column>
                                         <Column field="confidance" header="Confidence" sortable>
                                             <template #body="slotProps">
-                                                {{ 
-                                                    Number(slotProps.data.confidance ).toFixed(2) }}%
+                                                {{
+                                                    Number(slotProps.data.confidance).toFixed(2) }}%
                                             </template>
                                         </Column>
                                     </DataTable>
@@ -721,8 +737,10 @@ const setChartData = (data, labels) => {
                         <p class="text-lg">2412413153515321351351351351531</p>
                     </div>
                     <div class="col-12">
-                        <CodeBlock :code="code" language="javascript" />
+                        <Dropdown v-model="selectedLang" :options="allLang" optionLabel="name" placeholder="Select Language"
+                            class="w-full md:w-14rem" />
                     </div>
+                    <CodeBlock class="col" :code="snippets[selectedLang.name]" :language="selectedLang.name" />
                 </div>
             </div>
         </div>
