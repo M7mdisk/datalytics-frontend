@@ -153,7 +153,7 @@ const noModelsCreated = computed(() => {
 </Toolbar>
 
     <div class="grid col lg:mr-3  lg:ml-1 gap-5"  v-if="loading">
-        <div class="card col" style="width: 300px;" v-for="i in 8">
+        <div class="card col" style="width: 300px;" v-for="i in 12">
             <div class="border-round  border-1 surface-border p-3 surface-card p-0">
                 
                 <Skeleton clas width="290px" height="250px"></Skeleton>
