@@ -29,14 +29,27 @@ export default {
       if (codeBlock.value) {
         Prism.languages.python = Prism.languages.extend('python', {});
         Prism.languages.bash = Prism.languages.extend('bash', {});
-        codeBlock.value.innerHTML = Prism.highlight(props.code, Prism.languages[props.language], props.language);
+        Prism.languages.javascript = Prism.languages.extend('js', {});
+        let lang = props.language.toLowerCase();
+        if (lang == 'curl')
+          lang = 'bash';
+        if (lang == 'javascript')
+          lang = 'js'
+
+        codeBlock.value.innerHTML = Prism.highlight(props.code, Prism.languages[lang], props.language);
         codeBlock.value.classList.add('prism-okaidia');
       }
     });
 
     watch(() => [props.code, props.language], () => {
       if (codeBlock.value) {
-        codeBlock.value.innerHTML = Prism.highlight(props.code, Prism.languages[props.language], props.language);
+        let lang = props.language.toLowerCase();
+        if (lang == 'curl')
+          lang = 'bash';
+        if (lang == 'javascript')
+          lang = 'js'
+
+        codeBlock.value.innerHTML = Prism.highlight(props.code, Prism.languages[lang], props.language);
       }
     });
 
@@ -47,3 +60,11 @@ export default {
 };
 </script>
   
+<style>
+/* pre[class*="language-"],
+code[class*="language-"] {
+  white-space: normal;
+  overflow: auto;
+  word-break: break-word;
+} */
+</style>
