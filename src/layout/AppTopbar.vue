@@ -18,7 +18,7 @@ onBeforeUnmount(() => {
 });
 
 const logoUrl = computed(() => {
-    return `${contextPath}layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
+    return `${contextPath}layout/images/logo.png`;
 });
 
 const onTopBarMenuButton = () => {
@@ -68,8 +68,8 @@ const logOut = () => {
 <template>
     <div class="layout-topbar">
         <router-link to="/" class="layout-topbar-logo">
-            <!-- <img :src="logoUrl" alt="logo" /> -->
-            <span class="hover:text-primary">SimpleAI</span>
+            <img class=" w-4rem h-4rem" :src="logoUrl" alt="logo" />
+            <span class="hover:text-primary">DATALYTICS</span>
         </router-link>
 
         <!-- <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
