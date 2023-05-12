@@ -107,7 +107,7 @@ const noModelsCreated = computed(() => {
                     <InputText v-model="searchTerm" placeholder="Search..." :disabled="noModelsCreated" />
                 </span>
                 <!-- <Dropdown v-model="selectedCategory" :options="category" show-clear optionLabel="name"
-                        placeholder="Select model type" class="w-full md:w-14rem" :disabled="noModelsCreated" /> -->
+                            placeholder="Select model type" class="w-full md:w-14rem" :disabled="noModelsCreated" /> -->
 
                 <Dropdown v-model="selectedCategory" :options="category" s optionLabel="name"
                     placeholder="Select model type" class="w-full md:w-14rem" :disabled="noModelsCreated">
@@ -135,8 +135,8 @@ const noModelsCreated = computed(() => {
                             <div>{{ slotProps.option.name }}</div>
                         </div>
                     </template>
-                </Dropdown>
-            </div>
+            </Dropdown>
+        </div>
 
 
 
@@ -149,20 +149,20 @@ const noModelsCreated = computed(() => {
                 :disabled="noModelsCreated" />
 
         </div>
-    </template>
-</Toolbar>
+        </template>
+    </Toolbar>
 
-    <div class="grid col lg:mr-3  lg:ml-1 gap-5"  v-if="loading">
+    <div class="grid col lg:mr-3  lg:ml-1 gap-5" v-if="loading">
         <div class="card col" style="width: 300px;" v-for="i in 12">
             <div class="border-round  border-1 surface-border p-3 surface-card p-0">
-                
+
                 <Skeleton clas width="290px" height="250px"></Skeleton>
                 <div class="w-full md:w-6 p-3">
-                <Skeleton class="mb-2"></Skeleton>
-                <Skeleton width="10rem" class="mb-2"></Skeleton>
-                <Skeleton width="5rem" class="mb-2"></Skeleton>
-              
-            </div>
+                    <Skeleton class="mb-2"></Skeleton>
+                    <Skeleton width="10rem" class="mb-2"></Skeleton>
+                    <Skeleton width="5rem" class="mb-2"></Skeleton>
+
+                </div>
                 <div class="flex justify-content-end mt-3">
                     <Skeleton width="4rem" height="2rem"></Skeleton>
                 </div>
@@ -175,7 +175,7 @@ const noModelsCreated = computed(() => {
     <div class="grid lg:mr-3  lg:ml-1" v-else>
         <div v-for="(d, index) in sortedModels" class="col-12 xl:col-3 lg:col-4 md:col-6 sm:col-12">
             <!-- <Card class="shadow-4 "> -->
-            <Card class="shadow-4 flipright animation-duration-400 animation-iteration-1">
+            <Card class="shadow-4 ">
                 <template #header>
                     <div class="flex flex-column pt-1 px-1 lg:px-8 overflow-hidden"
                         :style="{ background: d.color, height: '180px', clipPath: 'ellipse(170% 87% at 93% 13%)' }">
@@ -227,20 +227,20 @@ const noModelsCreated = computed(() => {
 
         </div>
         <!-- 
-                                                                                                                            <div class="col-12 lg:col-3 md:col-6">
-                                                                                                                                <router-link to="/ml-models/new-ml-model">
-                                                                                                                                    <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
-                                                                                                                                        <div class="flex justify-content-center w-full h-full"
-                                                                                                                                            style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
-                                                                                                                                            <div class="m-8 justify-content-center align-self-center">
-                                                                                                                                                <div class="flex justify-content-center align-self-center mt-4"><Button icon="pi pi-plus"
-                                                                                                                                                        class="mb-3 p-button-rounded p-button-raised" iconPos="center" /></div>
-                                                                                                                                                <P class="text-primary text-center">Add New Model</P>
+                                                                                                                                <div class="col-12 lg:col-3 md:col-6">
+                                                                                                                                    <router-link to="/ml-models/new-ml-model">
+                                                                                                                                        <div class="col-12 card m-1 border-1 surface-border justify-content-center w-full h-full">
+                                                                                                                                            <div class="flex justify-content-center w-full h-full"
+                                                                                                                                                style="border: 2px dotted blue; border-style: dotted dotted dotted; border-radius: 15px">
+                                                                                                                                                <div class="m-8 justify-content-center align-self-center">
+                                                                                                                                                    <div class="flex justify-content-center align-self-center mt-4"><Button icon="pi pi-plus"
+                                                                                                                                                            class="mb-3 p-button-rounded p-button-raised" iconPos="center" /></div>
+                                                                                                                                                    <P class="text-primary text-center">Add New Model</P>
+                                                                                                                                                </div>
                                                                                                                                             </div>
                                                                                                                                         </div>
-                                                                                                                                    </div>
-                                                                                                                                </router-link>
-                                                                                                                            </div> -->
+                                                                                                                                    </router-link>
+                                                                                                                                </div> -->
 
 
     </div>

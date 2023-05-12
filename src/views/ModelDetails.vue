@@ -64,9 +64,13 @@ const model_names = {
     LOGREG: 'Logistic Regression',
     SVC: 'Support Vector classifier',
     DTC: 'Decision Tree Classifier',
-    RFC: 'Random Forest Classifier'
+    RFC: 'Random Forest Classifier',
+    GBC: "Gradient Boosting Classifier",
+    GBR: "Gradient Boosting Regressor",
+    LSO: "Lasso regression"
 };
 
+const sortedFieldNames = ref([])
 function accuracyColor(acc) {
     const colors = [
         "#FF0000", // 0-9%
@@ -101,7 +105,8 @@ function featureImportance(model) {
         }
     }
     topFields.value.sort(sortFunction)
-    // console.log({ topFields: topFields.value })
+    sortedFieldNames.value = topFields.value.map(x => x[0])
+
 }
 function sortFunction(a, b) {
     if (a[1] === b[1]) {
@@ -304,13 +309,6 @@ async function predict() {
 
 }
 //code
-const code = ref(` const Prism = require('prismjs');
-
-// The code snippet you want to highlight, as a string
-const code = 'var data = 1;'';
-
-// Returns a highlighted HTML string
-const html = Prism.highlight(code, Prism.languages.javascript, 'javascript'); `)
 function getLang(data) {
     let lang = []
     for (const key in data) {
@@ -320,7 +318,7 @@ function getLang(data) {
     return lang
 }
 const allLang = ref([]);
-const selectedLang = ref({name: 'javascript'})
+const selectedLang = ref({ name: 'Python' })
 
 //Chart
 const chartData = ref();
@@ -410,6 +408,20 @@ const setChartData = (data, labels) => {
         ]
     };
 };
+
+const sortSeg = (segObj) => {
+    return Object.keys(segObj)
+        .sort((a, b) => {
+            if (!sortedFieldNames.value.includes(a) || !sortedFieldNames.value.includes(b)) {
+                return 100;
+            }
+            return sortedFieldNames.value.indexOf(a) - sortedFieldNames.value.indexOf(b)
+        })
+        .reduce(function (acc, key) {
+            acc[key] = segObj[key];
+            return acc;
+        }, {});
+}
 
 </script>
 <template>
@@ -530,7 +542,7 @@ const setChartData = (data, labels) => {
                             <h3 class="ml-2">{{ segOutcome[0].toFixed(2) }}</h3>
                         </div>
                         <div class="col-9 justify-content-end">
-                            <DataTable :value="segments.most" stripedRows table-style="justify-content-center">
+                            <DataTable :value="sortSeg(segments.most)" stripedRows table-style="justify-content-center">
                                 <Column field="field" header="Field">
                                     <template #body="slotProps">
                                         {{ slotProps.index.substring(1) }}
@@ -572,7 +584,7 @@ const setChartData = (data, labels) => {
                             <h3 class="ml-2">{{ segOutcome[1].toFixed(2) }}</h3>
                         </div>
                         <div class="col-9 justify-content-end">
-                            <DataTable :value="segments.least" stripedRows table-style="justify-content-center">
+                            <DataTable :value="sortSeg(segments.least)" stripedRows table-style="justify-content-center">
                                 <Column field="field" header="Field">
                                     <template #body="slotProps">
                                         {{ slotProps.index.substring(1) }}
@@ -615,7 +627,8 @@ const setChartData = (data, labels) => {
                             <!-- <h3 class="ml-2">{{ segmentObject.ac }}</h3> -->
                         </div>
                         <div class="col-9 justify-content-end">
-                            <DataTable :value="segmentObject.values" stripedRows table-style="justify-content-center">
+                            <DataTable :value="sortSeg(segmentObject.values)" stripedRows
+                                table-style="justify-content-center">
                                 <Column field="field" header="Field">
                                     <template #body="slotProps">
                                         {{ slotProps.index.substring(1) }}
@@ -656,7 +669,7 @@ const setChartData = (data, labels) => {
                             <div class="col-12 pb-0 text-lg">{{ feature.name }}</div>
 
                             <div class="ml-4">
-                                <InputText id="value" v-model="feature.value" type="text" class="p-inputtext-sm "
+                                <InputText id="value" v-model="feature.value" type="number" class="p-inputtext-sm "
                                     style="width: 194px;" v-if="feature.options.length == 0" />
                                 <Dropdown v-model="feature.value" :options="feature.options" optionLabel="name"
                                     placeholder="Select ..." class="w-full md:w-14rem" v-else />
@@ -665,7 +678,7 @@ const setChartData = (data, labels) => {
 
 
                     </div>
-                    <div class="col"><Button :disabled="!canPrecdict" @click="predict()" label="Pridect!"
+                    <div class="col"><Button :disabled="!canPrecdict" @click="predict()" label="Predict!"
                             :loading="loading"></Button></div>
                     <Divider />
                     <div>
@@ -723,18 +736,10 @@ const setChartData = (data, labels) => {
 
                 <!-- REST API -->
                 <div class="grid" v-if="sidebuttons.b2.selcted">
-                    <h1>REST API:</h1>
+                    <h2>REST API:</h2>
                     <div class="col-12">
                         <p class="text-lg">Easily integrate the model into your system and setup real-time
                             automations with APIs.</p>
-                    </div>
-                    <div class="col-12">
-                        <h5 class="bold"> Model ID</h5>
-                        <p class="text-lg">2412413153515321351351351351531</p>
-                    </div>
-                    <div class="col-12">
-                        <h5 class="bold"> API Key</h5>
-                        <p class="text-lg">2412413153515321351351351351531</p>
                     </div>
                     <div class="col-12">
                         <Dropdown v-model="selectedLang" :options="allLang" optionLabel="name" placeholder="Select Language"
