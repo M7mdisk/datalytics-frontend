@@ -69,7 +69,7 @@ const logOut = () => {
     <div class="layout-topbar">
         <router-link to="/" class="layout-topbar-logo">
             <img class=" w-4rem h-4rem" :src="logoUrl" alt="logo" />
-            <span class="hover:text-primary">DATALYTICS</span>
+            <span class="hover:text-primary">Datalytics</span>
         </router-link>
 
         <!-- <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
@@ -86,11 +86,13 @@ const logOut = () => {
                 <span>Calendar</span>
             </button> -->
             <router-link to="/profile">
-                <Button class="p-link layout-topbar-button hover:p-button-rounded p-button-text " v-tooltip.bottom="'Profile'">
+                <Button class="p-link layout-topbar-button hover:p-button-rounded p-button-text "
+                    v-tooltip.bottom="'Profile'">
                     <i class="pi pi-user"></i>
                 </Button></router-link>
             <router-link to="/login">
-                <Button @click="logOut" class="p-link layout-topbar-button hover:p-button-rounded p-button-text " v-tooltip.bottom="'Logout'">
+                <Button @click="logOut" class="p-link layout-topbar-button hover:p-button-rounded p-button-text "
+                    v-tooltip.bottom="'Logout'">
                     <i class="pi pi-sign-out"></i>
                 </Button></router-link>
             <!-- <button @click="onSettingsClick()" class="p-link layout-topbar-button">
@@ -100,7 +102,3 @@ const logOut = () => {
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-
-</style>

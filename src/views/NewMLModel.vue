@@ -104,7 +104,7 @@ async function CreateModel() {
         <div class="flex flex-column align-items-center justify-content-center gap-2">
             <ProgressSpinner />
             <!-- <i class="pi pi-spin pi-spinner" style="font-size: 4rem; color: white;"></i>  -->
-            <Loader/>
+            <Loader />
             <h3 class="text-white">Creating Model...</h3>
         </div>
     </Dialog>
@@ -197,4 +197,5 @@ async function CreateModel() {
     0% {
         stroke: white;
     }
-}</style>
+}
+</style>

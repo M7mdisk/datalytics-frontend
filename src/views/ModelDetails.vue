@@ -410,17 +410,23 @@ const setChartData = (data, labels) => {
 };
 
 const sortSeg = (segObj) => {
-    return Object.keys(segObj)
+    console.log("FFFF")
+    // console.log(JSON.stringify(segObj))
+    // console.log(JSON.stringify(sortedFieldNames.value))
+    const sorted = Object.keys(segObj).filter(x => sortedFieldNames.value.includes(x))
         .sort((a, b) => {
-            if (!sortedFieldNames.value.includes(a) || !sortedFieldNames.value.includes(b)) {
-                return 100;
-            }
+            // if (!sortedFieldNames.value.includes(a) || !sortedFieldNames.value.includes(b)) {
+            //     console.log(JSON.stringify(a), sortedFieldNames.value)
+            //     return 0;
+            // }
+            console.log(sortedFieldNames.value.indexOf(a), sortedFieldNames.value.indexOf(b))
             return sortedFieldNames.value.indexOf(a) - sortedFieldNames.value.indexOf(b)
         })
-        .reduce(function (acc, key) {
-            acc[key] = segObj[key];
-            return acc;
-        }, {});
+    console.log(sorted)
+    return sorted.reduce(function (acc, key) {
+        acc[key] = segObj[key];
+        return acc;
+    }, {});
 }
 
 </script>
